@@ -1,0 +1,10 @@
+allowBuilds:
+  esbuild: true
+  lefthook: true
+  unrs-resolver: true
+# Ignore versions published < 7 days ago, giving time to vet/yank releases.
+minimumReleaseAge: 10080
+# Block versions with weaker trust attestation than prior releases.
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - semver@6.3.1 # legacy transitive dep predating npm provenance; false positive

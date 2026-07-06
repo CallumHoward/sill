@@ -1,0 +1,73 @@
+name: Update pnpm
+
+# Opens a PR to bump the pnpm version pinned in package.json's "packageManager"
+# field (which CI and pnpm/action-setup read) to the latest release.
+#
+# Runs on the 1st and 15th of each month (~every 2 weeks). Cron is always UTC.
+# Use the "Run workflow" button to trigger a check on demand.
+on:
+  schedule:
+    - cron: "0 8 1,15 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # Pin Node to the repo's version so the registry query runs deterministically.
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Resolve pnpm versions
+        id: versions
+        shell: bash
+        run: |
+          current=$(node -p "require('./package.json').packageManager.split('@')[1]")
+          latest=$(npm view pnpm version)
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          if [ "$current" != "$latest" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "pnpm $current -> $latest (changed: $([ "$current" != "$latest" ] && echo yes || echo no))"
+
+      - name: Bump packageManager field
+        if: steps.versions.outputs.changed == 'true'
+        shell: bash
+        env:
+          CURRENT: ${{ steps.versions.outputs.current }}
+          LATEST: ${{ steps.versions.outputs.latest }}
+        run: |
+          # Targeted replace so the rest of package.json formatting is untouched.
+          sed -i "s/\"packageManager\": \"pnpm@${CURRENT}\"/\"packageManager\": \"pnpm@${LATEST}\"/" package.json
+
+      - name: Create pull request
+        if: steps.versions.outputs.changed == 'true'
+        # Note: PRs opened with the default GITHUB_TOKEN do not trigger the CI
+        # workflow. To have CI run automatically on this PR, pass a PAT or GitHub
+        # App token via `token:` here instead.
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "chore: update pnpm to ${{ steps.versions.outputs.latest }}"
+          branch: chore/update-pnpm
+          delete-branch: true
+          title: "chore: update pnpm to ${{ steps.versions.outputs.latest }}"
+          body: |
+            Bumps the pinned pnpm version in `package.json`'s `packageManager`
+            field from `${{ steps.versions.outputs.current }}` to
+            `${{ steps.versions.outputs.latest }}`.
+
+            CI's `pnpm/action-setup@v6` reads this field, so no workflow changes
+            are needed.
+
+            Release notes: https://github.com/pnpm/pnpm/releases/tag/v${{ steps.versions.outputs.latest }}
+          labels: dependencies

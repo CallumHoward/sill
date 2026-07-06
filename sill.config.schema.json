@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/CallumHoward/sill/main/sill.config.schema.json",
+  "title": "sill configuration",
+  "description": "Configuration for sill, the config-file schema validator.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "root": {
+      "description": "Reserved: stop the upward config search at this directory.",
+      "type": "boolean"
+    },
+    "exclude": {
+      "description": "Glob patterns to exclude from discovery.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "schemas": {
+      "description": "Ordered glob→schema mappings; first match wins. Beats catalogs, loses to an inline $schema reference.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "description": "Glob(s) relative to the repo root; bare filenames match at any depth.",
+            "oneOf": [
+              { "type": "string", "minLength": 1 },
+              { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 }
+            ]
+          },
+          "schema": {
+            "description": "Schema URL, or a path relative to this config file.",
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": ["files", "schema"],
+        "additionalProperties": false
+      }
+    },
+    "registries": {
+      "description": "Extra SchemaStore-format catalog URLs, consulted before SchemaStore itself.",
+      "type": "array",
+      "items": { "type": "string", "format": "uri" }
+    },
+    "catalog": {
+      "description": "Consult the SchemaStore catalog for files with no other association.",
+      "type": "boolean",
+      "default": true
+    },
+    "vendor": {
+      "description": "Hermetic mode: resolve remote schemas from a vendored directory maintained by `sill vendor`.",
+      "type": "object",
+      "properties": {
+        "dir": {
+          "description": "Directory holding manifest.json and vendored schema copies.",
+          "type": "string",
+          "default": "schemas"
+        }
+      },
+      "additionalProperties": false
+    },
+    "validateFormats": {
+      "description": "Validate JSON Schema `format` keywords.",
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "additionalProperties": false
+}

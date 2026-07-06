@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Full history so diff-cover can find the merge-base with the PR base branch.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      # Reads the pnpm version from the "packageManager" field in package.json.
+      - uses: pnpm/action-setup@v6
+
+      # Manual cache (instead of setup-node's built-in cache: pnpm) so we can
+      # use restore-keys for warm/partial restores when the lockfile changes.
+      - name: Locate pnpm store
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+
+      - uses: actions/cache@v5
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Lint
+        # lint:ci uses --format=github for inline PR annotations on lint errors.
+        run: pnpm lint:ci
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Fallow
+        run: pnpm fallow
+
+      - name: Test
+        run: pnpm test:cov
+
+      # Gate coverage of changed lines only -- reads the HEAD lcov report plus
+      # the git diff against the base branch (no baseline or second run needed).
+      - name: Diff coverage
+        run: |
+          pipx run diff-cover coverage/lcov.info \
+            --compare-branch origin/${{ github.base_ref || 'main' }} \
+            --fail-under 80
+
+      - name: Build
+        run: pnpm build
+
+      # Cross-runtime smoke: the published artifact must run unmodified on
+      # Node, Bun, and Deno. Each validates this repo's own config files.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Smoke (node)
+        run: node dist/cli.js check --offline
+
+      - name: Smoke (bun)
+        run: bun dist/cli.js check --offline
+
+      - name: Smoke (deno)
+        run: deno run --allow-read --allow-write --allow-env --allow-net dist/cli.js check --offline

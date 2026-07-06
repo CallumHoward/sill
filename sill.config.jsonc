@@ -1,0 +1,5 @@
+{
+  "$schema": "./sill.config.schema.json",
+  // Fixture files are intentionally invalid; the vendored store is not an instance.
+  "exclude": ["fixtures/**", "schemas/**"],
+}

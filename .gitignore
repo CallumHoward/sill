@@ -1,0 +1,10 @@
+node_modules
+.DS_Store
+dist
+coverage
+*.local
+.env.local
+todos.json
+.claude/*
+!.claude/skills/
+!.claude/settings.json
