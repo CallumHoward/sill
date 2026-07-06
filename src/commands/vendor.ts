@@ -12,7 +12,7 @@ const MAX_DEPTH = 10;
  * Sync vendored schemas: fetch every manifest URL, then walk the transitive $ref closure so
  * vendored validation never needs the network.
  */
-export async function runVendor(args: string[], options: CliOptions): Promise<number> {
+export async function runVendor(_args: string[], options: CliOptions): Promise<number> {
   const cwd = process.cwd();
   const loaded = await loadConfig(cwd, options.config);
   const dir = resolve(loaded?.dir ?? cwd, loaded?.config.vendor?.dir ?? "schemas");
@@ -26,14 +26,13 @@ export async function runVendor(args: string[], options: CliOptions): Promise<nu
     manifest = {};
   }
 
-  const addIndex = args.indexOf("--add");
-  if (addIndex !== -1) {
-    const url = args[addIndex + 1];
-    if (url === undefined || !/^https?:\/\//.test(url)) {
+  const add = options.add;
+  if (add !== undefined) {
+    if (!/^https?:\/\//.test(add)) {
       console.error("sill vendor --add: expected a schema URL");
       return 2;
     }
-    if (!(url in manifest)) manifest[url] = filenameFor(url, manifest);
+    if (!(add in manifest)) manifest[add] = filenameFor(add, manifest);
   }
   if (Object.keys(manifest).length === 0) {
     console.error(
@@ -92,6 +91,7 @@ async function fetchSchema(url: string): Promise<unknown> {
 /** Collect absolute forms of every external (non-fragment) $ref in a schema. */
 export function externalRefs(schema: unknown, baseUrl: string): string[] {
   const refs = new Set<string>();
+  // fallow-ignore-next-line complexity
   const walk = (node: unknown): void => {
     if (Array.isArray(node)) {
       for (const item of node) walk(item);

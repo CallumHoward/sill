@@ -75,10 +75,10 @@ jobs:
           deno-version: v2.x
 
       - name: Smoke (node)
-        run: node dist/cli.js check --offline
+        run: node dist/cli.mjs check
 
       - name: Smoke (bun)
-        run: bun dist/cli.js check --offline
+        run: bun dist/cli.mjs check
 
       - name: Smoke (deno)
-        run: deno run --allow-read --allow-write --allow-env --allow-net dist/cli.js check --offline
+        run: deno run --allow-read --allow-write --allow-env --allow-net --allow-sys dist/cli.mjs check

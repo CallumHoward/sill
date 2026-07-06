@@ -21,6 +21,7 @@ export interface SchemaMapping {
   schema: string;
 }
 
+// fallow-ignore-next-line complexity
 function assertShape(value: unknown, path: string): SillConfig {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`${path}: config must be an object`);

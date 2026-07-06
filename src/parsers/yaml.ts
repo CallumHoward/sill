@@ -1,22 +1,11 @@
 import { isMap, isSeq, type Node as YamlNode, parseAllDocuments } from "yaml";
 
 import { ParseIssue, type ParsedDoc, type ParserAdapter, type Span } from "../types.ts";
+import { leadingCommentRef } from "./leading-comment.ts";
 import { pointerSegments } from "./pointer.ts";
 
 // Editor convention: `# yaml-language-server: $schema=<uri>` in leading comments.
-const MODELINE = /^\s*#\s*yaml-language-server:\s*\$schema=(\S+)/;
-
-/** Scan the comment lines before the first content line for a modeline. */
-function leadingModeline(text: string): string | null {
-  for (const line of text.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (trimmed === "") continue;
-    if (!trimmed.startsWith("#")) break;
-    const match = MODELINE.exec(line);
-    if (match) return match[1] ?? null;
-  }
-  return null;
-}
+const MODELINE = /^#\s*yaml-language-server:\s*\$schema=(\S+)/;
 
 function spanOf(node: unknown): Span | null {
   const range = (node as YamlNode).range;
@@ -35,7 +24,7 @@ export const yamlAdapter: ParserAdapter = {
   extensions: [".yaml", ".yml"],
   parse(text: string): ParsedDoc[] {
     // The modeline is file-scoped: it applies to every document in the stream.
-    const modeline = leadingModeline(text);
+    const modeline = leadingCommentRef(text, MODELINE);
     return parseAllDocuments(text).map((doc) => {
       const error = doc.errors[0];
       if (error) {
@@ -48,6 +37,7 @@ export const yamlAdapter: ParserAdapter = {
       return {
         value,
         schemaRef: modeline ?? inlineSchemaRef(value),
+        // fallow-ignore-next-line complexity
         locate(instancePath: string): Span | null {
           let node: unknown = doc.contents;
           for (const segment of pointerSegments(instancePath)) {

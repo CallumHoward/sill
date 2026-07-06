@@ -1,22 +1,12 @@
-import { LineIndex } from "../util/line-index.ts";
+import type { LineIndex } from "../util/line-index.ts";
 import type { Reporter } from "./shared.ts";
-import { summaryLine } from "./shared.ts";
+import { positionFor, summaryLine } from "./shared.ts";
 
 export const githubReporter: Reporter = {
   report(diagnostics, sources, summary) {
     const indexes = new Map<string, LineIndex>();
     const lines = diagnostics.map((d) => {
-      let line = 1;
-      let column = 1;
-      const source = sources.get(d.file);
-      if (d.span && source !== undefined) {
-        let index = indexes.get(d.file);
-        if (!index) {
-          index = new LineIndex(source);
-          indexes.set(d.file, index);
-        }
-        ({ line, column } = index.positionAt(d.span.offset));
-      }
+      const { line, column } = positionFor(d, sources, indexes) ?? { line: 1, column: 1 };
       const message =
         d.suggestion === undefined ? d.message : `${d.message}; did you mean "${d.suggestion}"?`;
       const props = [

@@ -57,6 +57,8 @@ export class CompiledCatalog {
     });
   }
 
+  // Called on instances returned to associate.ts / identify.ts; fallow misses instance dispatch.
+  // fallow-ignore-next-line unused-class-member complexity
   match(relPath: string): CatalogMatch | null {
     const basename = relPath.slice(relPath.lastIndexOf("/") + 1);
     let best = better(null, this.#byBasename.get(basename));
@@ -105,27 +107,28 @@ export class CompiledCatalog {
   }
 }
 
+function parseEntry(raw: unknown): CatalogEntry | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const { url, fileMatch, name, description } = raw as Record<string, unknown>;
+  if (typeof url !== "string") return null;
+  return {
+    url,
+    name: typeof name === "string" ? name : undefined,
+    description: typeof description === "string" ? description : undefined,
+    fileMatch: Array.isArray(fileMatch)
+      ? fileMatch.filter((p): p is string => typeof p === "string")
+      : undefined,
+  };
+}
+
 /** Parse a SchemaStore-format catalog document, skipping malformed entries. */
 export function compileCatalog(catalogUrl: string, catalogJson: unknown): CompiledCatalog {
-  const entries: CatalogEntry[] = [];
   const schemas =
     typeof catalogJson === "object" && catalogJson !== null
       ? (catalogJson as { schemas?: unknown }).schemas
       : undefined;
-  if (Array.isArray(schemas)) {
-    for (const raw of schemas) {
-      if (typeof raw !== "object" || raw === null) continue;
-      const { url, fileMatch, name, description } = raw as Record<string, unknown>;
-      if (typeof url !== "string") continue;
-      entries.push({
-        url,
-        name: typeof name === "string" ? name : undefined,
-        description: typeof description === "string" ? description : undefined,
-        fileMatch: Array.isArray(fileMatch)
-          ? fileMatch.filter((p): p is string => typeof p === "string")
-          : undefined,
-      });
-    }
-  }
+  const entries = Array.isArray(schemas)
+    ? schemas.map(parseEntry).filter((entry): entry is CatalogEntry => entry !== null)
+    : [];
   return new CompiledCatalog(catalogUrl, entries);
 }

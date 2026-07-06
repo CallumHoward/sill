@@ -37,6 +37,7 @@ export function didYouMean(input: string, candidates: Iterable<string>): string 
 export function propertyCandidates(schema: unknown, rootSchema: unknown): string[] {
   const found = new Set<string>();
   const visited = new Set<unknown>();
+  // fallow-ignore-next-line complexity
   const visit = (node: unknown, depth: number): void => {
     if (depth > 8 || node === null || typeof node !== "object" || visited.has(node)) return;
     visited.add(node);

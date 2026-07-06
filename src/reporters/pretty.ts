@@ -1,8 +1,8 @@
 import process from "node:process";
 
-import { LineIndex } from "../util/line-index.ts";
+import type { LineIndex } from "../util/line-index.ts";
 import type { Reporter } from "./shared.ts";
-import { summaryLine } from "./shared.ts";
+import { positionFor, summaryLine } from "./shared.ts";
 
 const RED = "31";
 const DIM = "2";
@@ -15,26 +15,14 @@ export const prettyReporter: Reporter = {
       useColor ? `\u001B[${code}m${text}\u001B[0m` : text;
 
     const indexes = new Map<string, LineIndex>();
-    const indexFor = (file: string): LineIndex | undefined => {
-      const source = sources.get(file);
-      if (source === undefined) return undefined;
-      let index = indexes.get(file);
-      if (!index) {
-        index = new LineIndex(source);
-        indexes.set(file, index);
-      }
-      return index;
-    };
-
     const blocks = diagnostics.map((d) => {
       const lines: string[] = [];
-      const index = d.span ? indexFor(d.file) : undefined;
-      const location = d.span && index ? index.positionAt(d.span.offset) : undefined;
+      const location = positionFor(d, sources, indexes);
       const where = location ? `${d.file}:${location.line}:${location.column}` : d.file;
       const at = d.instancePath === "" ? "root" : d.instancePath;
       lines.push(`${where}  ${paint(RED, d.message)}  [${d.keyword} at ${at}]`);
 
-      if (d.span && index && location) {
+      if (d.span && location) {
         const source = sources.get(d.file) ?? "";
         const lineStart = d.span.offset - (location.column - 1);
         const lineEnd = endOfLine(source, d.span.offset);

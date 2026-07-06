@@ -29,6 +29,19 @@ interface Target {
   schemaUri: string;
 }
 
+interface ParsedFile {
+  file: string;
+  docs: ParsedDoc[];
+}
+
+/** Mutable result accumulators shared across the check phases. */
+interface CheckState {
+  sources: Map<string, string>;
+  diagnostics: Diagnostic[];
+  invalidFiles: Set<string>;
+  checkedFiles: Set<string>;
+}
+
 export async function runCheck(args: string[], options: CliOptions): Promise<number> {
   const started = Date.now();
   const cwd = process.cwd();
@@ -44,104 +57,28 @@ export async function runCheck(args: string[], options: CliOptions): Promise<num
   const registry = createRegistry({ cache, vendor: await loadVendorStore(loaded) });
 
   const files = await discoverFiles(args, { cwd, exclude: loaded?.config.exclude ?? [] });
-  const sources = new Map<string, string>();
-  const diagnostics: Diagnostic[] = [];
-  const skipped: string[] = [];
-  const invalidFiles = new Set<string>();
-  const checkedFiles = new Set<string>();
+  const state: CheckState = {
+    sources: new Map(),
+    diagnostics: [],
+    invalidFiles: new Set(),
+    checkedFiles: new Set(),
+  };
 
-  const reads = new Semaphore(64);
-  const parsedFiles = await Promise.all(
-    files.map(async (file) => {
-      const adapter = adapterForPath(file);
-      if (!adapter) return null;
-      const text = await reads.run(() => readFile(resolve(cwd, file), "utf8"));
-      sources.set(file, text);
-      try {
-        return { file, docs: adapter.parse(text) };
-      } catch (err) {
-        if (err instanceof ParseIssue) {
-          diagnostics.push({
-            file,
-            message: err.message,
-            keyword: "parse",
-            instancePath: "",
-            span: err.span,
-          });
-          invalidFiles.add(file);
-          checkedFiles.add(file);
-          return null;
-        }
-        throw err;
-      }
-    }),
-  );
-
+  const parsedFiles = await readAndParse(files, cwd, state);
   const associator = await buildAssociator(parsedFiles, loaded, cache, options);
-
-  // Group by resolved schema URI so each schema loads and compiles once.
-  const groups = new Map<string, Target[]>();
-  for (const parsed of parsedFiles) {
-    if (!parsed) continue;
-    let associated = false;
-    for (const doc of parsed.docs) {
-      const association = associator.associate(parsed.file, doc);
-      if (!association) continue;
-      associated = true;
-      const schemaUri = resolveAssociation(association, parsed.file, loaded, registry, cwd);
-      const target: Target = { file: parsed.file, doc, association, schemaUri };
-      const group = groups.get(schemaUri);
-      if (group) group.push(target);
-      else groups.set(schemaUri, [target]);
-    }
-    if (!associated) skipped.push(parsed.file);
-  }
+  const { groups, skipped } = groupBySchema(parsedFiles, { associator, loaded, registry, cwd });
 
   const engine = createEngine({
     loadSchema: (uri) => registry.load(uri),
     validateFormats: loaded?.config.validateFormats ?? true,
   });
-
   await Promise.all(
-    [...groups.entries()].map(async ([schemaUri, targets]) => {
-      let validate;
-      let rootSchema: unknown;
-      try {
-        rootSchema = await registry.load(schemaUri);
-        validate = await engine.compile(schemaUri, rootSchema as Record<string, unknown>);
-      } catch (err) {
-        for (const target of targets) {
-          diagnostics.push({
-            file: target.file,
-            message: `could not load schema ${schemaUri}: ${(err as Error).message}`,
-            keyword: "schema-load",
-            instancePath: "",
-            span: null,
-          });
-          invalidFiles.add(target.file);
-          checkedFiles.add(target.file);
-        }
-        return;
-      }
-      for (const target of targets) {
-        checkedFiles.add(target.file);
-        const value = target.doc.value;
-        // Computed before validate() narrows `value` via its type guard.
-        const hasSchemaKey =
-          typeof value === "object" && value !== null && Object.hasOwn(value, "$schema");
-        if (validate(value)) continue;
-        const converted = convertErrors(validate.errors ?? [], {
-          file: target.file,
-          doc: target.doc,
-          rootSchema,
-          inlineJsonSchemaKey: target.association.source.kind === "inline" && hasSchemaKey,
-        });
-        if (converted.length > 0) invalidFiles.add(target.file);
-        diagnostics.push(...converted);
-      }
-    }),
+    [...groups.entries()].map(([schemaUri, targets]) =>
+      validateGroup(schemaUri, targets, { engine, registry }, state),
+    ),
   );
 
+  const { sources, diagnostics, invalidFiles, checkedFiles } = state;
   if (options.failOnUnmatched) {
     for (const file of skipped) {
       diagnostics.push({
@@ -167,6 +104,124 @@ export async function runCheck(args: string[], options: CliOptions): Promise<num
   if (output !== "") console.log(output);
 
   return diagnostics.length > 0 ? 1 : 0;
+}
+
+/** Read and parse each supported file, recording parse failures as diagnostics. */
+async function readAndParse(
+  files: string[],
+  cwd: string,
+  state: CheckState,
+): Promise<(ParsedFile | null)[]> {
+  const reads = new Semaphore(64);
+  return Promise.all(
+    files.map(async (file) => {
+      const adapter = adapterForPath(file);
+      if (!adapter) return null;
+      const text = await reads.run(() => readFile(resolve(cwd, file), "utf8"));
+      state.sources.set(file, text);
+      try {
+        return { file, docs: adapter.parse(text) };
+      } catch (err) {
+        if (err instanceof ParseIssue) {
+          state.diagnostics.push({
+            file,
+            message: err.message,
+            keyword: "parse",
+            instancePath: "",
+            span: err.span,
+          });
+          state.invalidFiles.add(file);
+          state.checkedFiles.add(file);
+          return null;
+        }
+        throw err;
+      }
+    }),
+  );
+}
+
+/** Group targets by resolved schema URI so each schema loads and compiles once. */
+function groupBySchema(
+  parsedFiles: (ParsedFile | null)[],
+  deps: { associator: Associator; loaded: LoadedConfig | null; registry: Registry; cwd: string },
+): { groups: Map<string, Target[]>; skipped: string[] } {
+  const groups = new Map<string, Target[]>();
+  const skipped: string[] = [];
+  for (const parsed of parsedFiles) {
+    if (!parsed) continue;
+    let associated = false;
+    for (const doc of parsed.docs) {
+      const association = deps.associator.associate(parsed.file, doc);
+      if (!association) continue;
+      associated = true;
+      const schemaUri = resolveAssociation(
+        association,
+        parsed.file,
+        deps.loaded,
+        deps.registry,
+        deps.cwd,
+      );
+      const target: Target = { file: parsed.file, doc, association, schemaUri };
+      const group = groups.get(schemaUri);
+      if (group) group.push(target);
+      else groups.set(schemaUri, [target]);
+    }
+    if (!associated) skipped.push(parsed.file);
+  }
+  return { groups, skipped };
+}
+
+/** Compile one schema and validate every target associated with it. */
+async function validateGroup(
+  schemaUri: string,
+  targets: Target[],
+  deps: { engine: ReturnType<typeof createEngine>; registry: Registry },
+  state: CheckState,
+): Promise<void> {
+  let validate;
+  let rootSchema: unknown;
+  try {
+    rootSchema = await deps.registry.load(schemaUri);
+    validate = await deps.engine.compile(schemaUri, rootSchema as Record<string, unknown>);
+  } catch (err) {
+    for (const target of targets) {
+      state.diagnostics.push({
+        file: target.file,
+        message: `could not load schema ${schemaUri}: ${(err as Error).message}`,
+        keyword: "schema-load",
+        instancePath: "",
+        span: null,
+      });
+      state.invalidFiles.add(target.file);
+      state.checkedFiles.add(target.file);
+    }
+    return;
+  }
+  for (const target of targets) {
+    state.checkedFiles.add(target.file);
+    validateTarget(target, validate, rootSchema, state);
+  }
+}
+
+function validateTarget(
+  target: Target,
+  validate: Awaited<ReturnType<ReturnType<typeof createEngine>["compile"]>>,
+  rootSchema: unknown,
+  state: CheckState,
+): void {
+  const value = target.doc.value;
+  // Computed before validate() narrows `value` via its type guard.
+  const hasSchemaKey =
+    typeof value === "object" && value !== null && Object.hasOwn(value, "$schema");
+  if (validate(value)) return;
+  const converted = convertErrors(validate.errors ?? [], {
+    file: target.file,
+    doc: target.doc,
+    rootSchema,
+    inlineJsonSchemaKey: target.association.source.kind === "inline" && hasSchemaKey,
+  });
+  if (converted.length > 0) state.invalidFiles.add(target.file);
+  state.diagnostics.push(...converted);
 }
 
 /**

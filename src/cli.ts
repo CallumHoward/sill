@@ -35,6 +35,8 @@ export interface CliOptions {
   ttl?: string;
   concurrency: number;
   failOnUnmatched: boolean;
+  /** URL to register in the vendor manifest (sill vendor --add). */
+  add?: string;
 }
 
 async function main(): Promise<number> {
@@ -50,6 +52,7 @@ async function main(): Promise<number> {
       ttl: { type: "string" },
       concurrency: { type: "string", default: "12" },
       "fail-on-unmatched": { type: "boolean", default: false },
+      add: { type: "string" },
       help: { type: "boolean", short: "h", default: false },
       version: { type: "boolean", short: "v", default: false },
     },
@@ -79,6 +82,7 @@ async function main(): Promise<number> {
     ttl: values.ttl,
     concurrency,
     failOnUnmatched: values["fail-on-unmatched"],
+    add: values.add,
   };
 
   const [command = "check", ...rest] = positionals;

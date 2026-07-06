@@ -1,22 +1,11 @@
 import { type AST, getStaticTOMLValue, ParseError, parseTOML } from "toml-eslint-parser";
 
 import { ParseIssue, type ParsedDoc, type ParserAdapter, type Span } from "../types.ts";
+import { leadingCommentRef } from "./leading-comment.ts";
 import { pointerSegments } from "./pointer.ts";
 
 // Taplo convention: `#:schema <uri>` (or `# :schema <uri>`) in leading comments.
 const SCHEMA_DIRECTIVE = /^#\s*:schema\s+(\S+)/;
-
-/** Scan the comment lines before the first content line for a schema directive. */
-function leadingDirective(text: string): string | null {
-  for (const line of text.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (trimmed === "") continue;
-    if (!trimmed.startsWith("#")) break;
-    const match = SCHEMA_DIRECTIVE.exec(trimmed);
-    if (match) return match[1] ?? null;
-  }
-  return null;
-}
 
 function keyName(key: AST.TOMLBare | AST.TOMLQuoted): string {
   return key.type === "TOMLBare" ? key.name : key.value;
@@ -90,7 +79,7 @@ export const tomlAdapter: ParserAdapter = {
     return [
       {
         value: getStaticTOMLValue(ast),
-        schemaRef: leadingDirective(text),
+        schemaRef: leadingCommentRef(text, SCHEMA_DIRECTIVE),
         locate(instancePath: string): Span | null {
           return index.get(JSON.stringify(pointerSegments(instancePath))) ?? null;
         },

@@ -13,6 +13,7 @@ function nodeSpan(node: Node): Span {
   return { offset: node.offset, length: node.length };
 }
 
+// fallow-ignore-next-line complexity
 function childNode(node: Node, segment: string): Node | null {
   if (node.type === "object") {
     for (const property of node.children ?? []) {
