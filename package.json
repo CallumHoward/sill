@@ -64,7 +64,7 @@
     "@vitest/coverage-v8": "^4.1.9",
     "eslint-plugin-check-file": "^3.3.1",
     "fallow": "^2.103.0",
-    "lefthook": "^2.1.9",
+    "lefthook": "^2.1.10",
     "oxfmt": "^0.56.0",
     "oxlint": "^1.71.0",
     "oxlint-tsgolint": "^0.23.0",
