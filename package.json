@@ -50,7 +50,7 @@
     "ajv": "^8.20.0",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
-    "ignore": "^7.0.5",
+    "ignore": "^7.0.6",
     "jsonc-parser": "^3.3.1",
     "picomatch": "^4.0.4",
     "tinyglobby": "^0.2.17",
