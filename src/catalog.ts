@@ -57,8 +57,7 @@ export class CompiledCatalog {
     });
   }
 
-  // Called on instances returned to associate.ts / identify.ts; fallow misses instance dispatch.
-  // fallow-ignore-next-line unused-class-member complexity
+  // fallow-ignore-next-line complexity
   match(relPath: string): CatalogMatch | null {
     const basename = relPath.slice(relPath.lastIndexOf("/") + 1);
     let best = better(null, this.#byBasename.get(basename));
