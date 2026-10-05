@@ -27,16 +27,16 @@ Options:
 `;
 
 export interface CliOptions {
-  reporter?: string | undefined;
+  reporter?: string;
   offline: boolean;
   catalog: boolean;
-  config?: string | undefined;
-  cacheDir?: string | undefined;
-  ttl?: string | undefined;
+  config?: string;
+  cacheDir?: string;
+  ttl?: string;
   concurrency: number;
   failOnUnmatched: boolean;
   /** URL to register in the vendor manifest (sill vendor --add). */
-  add?: string | undefined;
+  add?: string;
 }
 
 async function main(): Promise<number> {

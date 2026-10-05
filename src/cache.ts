@@ -23,7 +23,7 @@ export interface SchemaCacheOptions {
 
 interface Envelope {
   url: string;
-  etag?: string | undefined;
+  etag?: string;
   fetchedAt: number;
   body: string;
 }

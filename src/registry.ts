@@ -26,10 +26,7 @@ function resolveRef(ref: string, fromFile: string): string {
   return pathToFileURL(resolved).href;
 }
 
-export function createRegistry(opts: {
-  cache: SchemaCache;
-  vendor?: VendorStore | undefined;
-}): Registry {
+export function createRegistry(opts: { cache: SchemaCache; vendor?: VendorStore }): Registry {
   const parsed = new Map<string, Promise<AnySchemaObject>>();
 
   async function loadNow(uri: string): Promise<AnySchemaObject> {

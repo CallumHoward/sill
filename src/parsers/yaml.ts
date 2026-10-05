@@ -15,7 +15,7 @@ function spanOf(node: unknown): Span | null {
 
 function inlineSchemaRef(value: unknown): string | null {
   if (value === null || typeof value !== "object" || Array.isArray(value)) return null;
-  const ref = (value as Record<string, unknown>)["$schema"];
+  const ref = (value as Record<string, unknown>).$schema;
   return typeof ref === "string" ? ref : null;
 }
 

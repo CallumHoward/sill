@@ -27,7 +27,7 @@ describe("yamlAdapter", () => {
     const doc = yamlAdapter.parse(WORKFLOW)[0]!;
     const value = doc.value as Record<string, unknown>;
     expect(Object.keys(value)).toContain("on");
-    expect(value["name"]).toBe("CI");
+    expect(value.name).toBe("CI");
   });
 
   it("extracts the yaml-language-server modeline", () => {

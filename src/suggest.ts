@@ -42,16 +42,16 @@ export function propertyCandidates(schema: unknown, rootSchema: unknown): string
     if (depth > 8 || node === null || typeof node !== "object" || visited.has(node)) return;
     visited.add(node);
     const obj = node as Record<string, unknown>;
-    if (obj["properties"] !== null && typeof obj["properties"] === "object") {
-      for (const key of Object.keys(obj["properties"])) found.add(key);
+    if (obj.properties !== null && typeof obj.properties === "object") {
+      for (const key of Object.keys(obj.properties)) found.add(key);
     }
-    if (Array.isArray(obj["allOf"])) {
-      for (const sub of obj["allOf"]) visit(sub, depth + 1);
+    if (Array.isArray(obj.allOf)) {
+      for (const sub of obj.allOf) visit(sub, depth + 1);
     }
-    if (typeof obj["$ref"] === "string") {
-      if (obj["$ref"] === "#") visit(rootSchema, depth + 1);
-      else if (obj["$ref"].startsWith("#/")) {
-        visit(resolveLocalPointer(rootSchema, obj["$ref"].slice(1)), depth + 1);
+    if (typeof obj.$ref === "string") {
+      if (obj.$ref === "#") visit(rootSchema, depth + 1);
+      else if (obj.$ref.startsWith("#/")) {
+        visit(resolveLocalPointer(rootSchema, obj.$ref.slice(1)), depth + 1);
       }
     }
   };

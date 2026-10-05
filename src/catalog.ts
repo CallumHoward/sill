@@ -1,10 +1,10 @@
 import picomatch from "picomatch";
 
 export interface CatalogEntry {
-  name?: string | undefined;
-  description?: string | undefined;
+  name?: string;
+  description?: string;
   url: string;
-  fileMatch?: string[] | undefined;
+  fileMatch?: string[];
 }
 
 export interface CatalogMatch {
