@@ -24,12 +24,14 @@ deliberately ignores `$schema`; `check-jsonschema` validates one schema per
 invocation; `ajv-cli` is unmaintained and JSONC-blind. sill does what the
 language servers do, repo-wide, in one pass:
 
-1. **Inline reference wins** — a `$schema` property, a
+1. **Forced mappings** — config mappings marked `"force": true` (see
+   [Enforcing a policy](#enforcing-a-policy)); checked first, as a group.
+2. **Inline reference** — a `$schema` property, a
    `# yaml-language-server: $schema=<url>` modeline, or a TOML
    `#:schema <url>` directive.
-2. **Config mappings next** — ordered glob→schema pairs in
+3. **Config mappings** — ordered glob→schema pairs in
    `sill.config.jsonc`; first match wins.
-3. **Catalog fallback** — filename matching against your registries, then the
+4. **Catalog fallback** — filename matching against your registries, then the
    SchemaStore catalog.
 
 Files that match nothing are skipped silently (use `--fail-on-unmatched` to
@@ -63,7 +65,8 @@ directory. All fields optional; the file itself is optional too.
   // always excluded).
   "exclude": ["fixtures/**"],
   // Ordered glob→schema mappings; first match wins. Bare filenames match at
-  // any depth. Relative schema paths resolve against this file.
+  // any depth. Relative schema paths resolve against this file. Add
+  // "force": true to beat a file's own inline schema reference.
   "schemas": [
     {
       "files": ".fallowrc.json",
@@ -98,6 +101,40 @@ sill check --offline        # never touches the network
 
 `sill vendor` re-fetches everything in `schemas/manifest.json` and walks each
 schema's `$ref` closure, so review diffs show exactly what changed upstream.
+
+## Enforcing a policy
+
+By default a file's own `$schema` wins, as it does in editors. That is wrong for
+a policy check: anyone who can edit the file could add a one-line modeline
+pointing at a permissive schema. Mark the mapping `"force": true` and its
+schema applies regardless of what the file says about itself:
+
+```jsonc
+// sill-policy.jsonc
+{
+  "catalog": false,
+  "schemas": [{ "files": "pnpm-workspace.yaml", "schema": "./pnpm-workspace.json", "force": true }],
+}
+```
+
+```sh
+sill check --config sill-policy.jsonc pnpm-workspace.yaml
+```
+
+Forced mappings are checked first, as a group, so an earlier broad mapping
+cannot shadow one. `sill identify <file>` reports `(config wins, forced)` and
+notes any inline reference it ignored. The file's own `$schema` key is still
+part of the data being validated, so a schema with `additionalProperties:
+false` will report it.
+
+The check is only as strong as what the author of the file cannot change:
+
+- Keep the sill config, the forced schema (prefer a local path over a URL), and
+  the CI command out of reach, for example with CODEOWNERS.
+- Name policed files on the command line (`sill check pnpm-workspace.yaml`).
+  Discovery by glob honours `.gitignore` and `exclude`, so an ignored file is
+  never checked; files named explicitly are always checked.
+- `--offline` with `sill vendor` keeps a remote schema from changing under you.
 
 ## CI recipe (GitHub Actions)
 

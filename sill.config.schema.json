@@ -18,7 +18,7 @@
       "items": { "type": "string" }
     },
     "schemas": {
-      "description": "Ordered glob→schema mappings; first match wins. Beats catalogs, loses to an inline $schema reference.",
+      "description": "Ordered glob→schema mappings; first match wins. Beats catalogs and loses to an inline $schema reference, unless the mapping sets force. Forced mappings are checked first, as a group, before inline references and before other mappings.",
       "type": "array",
       "items": {
         "type": "object",
@@ -34,6 +34,11 @@
             "description": "Schema URL, or a path relative to this config file.",
             "type": "string",
             "minLength": 1
+          },
+          "force": {
+            "description": "Apply this schema even when the file names its own schema (a $schema property, a yaml-language-server modeline, or a TOML #:schema directive). Use it for policy checks the file's author must not be able to opt out of. Prefer a local schema path.",
+            "type": "boolean",
+            "default": false
           }
         },
         "required": ["files", "schema"],
