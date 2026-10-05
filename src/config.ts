@@ -19,7 +19,11 @@ export interface LoadedConfig {
 export interface SchemaMapping {
   files: string[];
   schema: string;
+  /** Beats a file's inline schema reference (policy checks); see SillConfig. */
+  force?: boolean;
 }
+
+const MAPPING_KEYS = new Set(["files", "schema", "force"]);
 
 // fallow-ignore-next-line complexity
 function assertShape(value: unknown, file: string): SillConfig {
@@ -28,6 +32,15 @@ function assertShape(value: unknown, file: string): SillConfig {
   }
   const config = value as SillConfig;
   for (const mapping of config.schemas ?? []) {
+    // A typo like "forced" would otherwise silently weaken a policy check.
+    for (const key of Object.keys(mapping)) {
+      if (!MAPPING_KEYS.has(key)) {
+        throw new Error(`${file}: unknown key "${key}" in a schemas[] entry`);
+      }
+    }
+    if (mapping.force !== undefined && typeof mapping.force !== "boolean") {
+      throw new Error(`${file}: schemas[] "force" must be a boolean`);
+    }
     if (typeof mapping.schema !== "string" || mapping.schema === "") {
       throw new Error(`${file}: every schemas[] entry needs a "schema" string`);
     }
@@ -81,6 +94,7 @@ export function schemaMappings(loaded: LoadedConfig | null): SchemaMapping[] {
   return (loaded?.config.schemas ?? []).map((m) => ({
     files: Array.isArray(m.files) ? m.files : [m.files],
     schema: m.schema,
+    ...(m.force === true ? { force: true } : {}),
   }));
 }
 

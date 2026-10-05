@@ -39,6 +39,18 @@ export async function runIdentify(args: string[], options: CliOptions): Promise<
   const [doc] = adapter.parse(text);
 
   console.log(relPath);
+  const forced = forcedMapping(relPath, loaded);
+  if (forced) {
+    const inline = doc?.schemaRef;
+    console.log(
+      inline === null || inline === undefined
+        ? "  inline reference: none"
+        : `  inline reference: ${inline} (ignored: a forced mapping applies)`,
+    );
+    console.log(`  config mapping: "${forced.pattern}" (forced) (${loaded?.path})`);
+    console.log(`  → ${forced.schemaUri} (config wins, forced)`);
+    return 0;
+  }
   if (doc?.schemaRef !== null && doc?.schemaRef !== undefined) {
     console.log(`  inline reference: ${doc.schemaRef}`);
     console.log(`  → ${registry.resolveRef(doc.schemaRef, absPath)} (inline wins)`);
@@ -68,13 +80,28 @@ function buildCache(options: CliOptions): SchemaCache {
   });
 }
 
+const BARE_DOC = { value: null, schemaRef: null, locate: () => null };
+
+/** The forced config mapping that applies to a file, if any (it beats an inline reference). */
+function forcedMapping(
+  relPath: string,
+  loaded: LoadedConfig | null,
+): { schemaUri: string; pattern: string } | null {
+  const match = createAssociator({
+    mappings: schemaMappings(loaded).filter((mapping) => mapping.force === true),
+    catalogs: [],
+  }).associate(relPath, BARE_DOC);
+  return match?.source.kind === "config"
+    ? { schemaUri: match.schemaUri, pattern: match.source.pattern }
+    : null;
+}
+
 /** Print the config-mapping step; returns true when a config mapping wins. */
 function printConfigMapping(relPath: string, loaded: LoadedConfig | null): boolean {
-  const bareDoc = { value: null, schemaRef: null, locate: () => null };
   const configMatch = createAssociator({
     mappings: schemaMappings(loaded),
     catalogs: [],
-  }).associate(relPath, bareDoc);
+  }).associate(relPath, BARE_DOC);
   if (configMatch && configMatch.source.kind === "config") {
     console.log(`  config mapping: "${configMatch.source.pattern}" (${loaded?.path})`);
     console.log(`  → ${configMatch.schemaUri} (config wins)`);

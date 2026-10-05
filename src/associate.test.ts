@@ -69,3 +69,58 @@ describe("createAssociator", () => {
     expect(associator.associate("mystery.json", doc())).toBeNull();
   });
 });
+
+describe("createAssociator with forced mappings", () => {
+  const forced = {
+    files: ["pnpm-workspace.yaml"],
+    schema: "./policy.json",
+    force: true,
+  };
+
+  it("beats an inline reference", () => {
+    const associator = createAssociator({ mappings: [forced], catalogs: [] });
+    const result = associator.associate(
+      "pnpm-workspace.yaml",
+      doc("https://example.com/open.json"),
+    );
+    expect(result?.schemaUri).toBe("./policy.json");
+    expect(result?.source).toEqual({
+      kind: "config",
+      pattern: "pnpm-workspace.yaml",
+      forced: true,
+    });
+  });
+
+  it("beats an earlier non-forced mapping that also matches", () => {
+    const broad = { files: ["*.yaml"], schema: "https://example.com/broad.json" };
+    const associator = createAssociator({ mappings: [broad, forced], catalogs: [] });
+    const result = associator.associate(
+      "pnpm-workspace.yaml",
+      doc("https://example.com/open.json"),
+    );
+    expect(result?.schemaUri).toBe("./policy.json");
+  });
+
+  it("uses the first forced mapping that matches", () => {
+    const other = { files: ["*.yaml"], schema: "./other.json", force: true };
+    const associator = createAssociator({ mappings: [forced, other], catalogs: [] });
+    expect(associator.associate("pnpm-workspace.yaml", doc())?.schemaUri).toBe("./policy.json");
+    expect(associator.associate("other.yaml", doc())?.schemaUri).toBe("./other.json");
+  });
+
+  it("leaves files it does not match to inline references", () => {
+    const associator = createAssociator({ mappings: [forced], catalogs: [] });
+    const result = associator.associate("lefthook.yml", doc("https://example.com/open.json"));
+    expect(result?.source).toEqual({ kind: "inline" });
+  });
+
+  it("keeps non-forced mappings below inline references", () => {
+    const plain = { files: ["pnpm-workspace.yaml"], schema: "./policy.json" };
+    const associator = createAssociator({ mappings: [plain], catalogs: [] });
+    const result = associator.associate(
+      "pnpm-workspace.yaml",
+      doc("https://example.com/open.json"),
+    );
+    expect(result?.source).toEqual({ kind: "inline" });
+  });
+});

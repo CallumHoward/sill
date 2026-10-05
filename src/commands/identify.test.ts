@@ -55,6 +55,18 @@ describe("runIdentify", () => {
     expect(output.join("\n")).toContain("(inline wins)");
   });
 
+  it("shows a forced mapping winning over an inline reference", async () => {
+    await writeFile(
+      path.join(dir, "sill.config.json"),
+      '{"schemas":[{"files":"a.json","schema":"./policy.json","force":true}]}',
+    );
+    await writeFile(path.join(dir, "a.json"), '{"$schema":"./open.json"}');
+    expect(await runIdentify(["a.json"], options())).toBe(0);
+    const report = output.join("\n");
+    expect(report).toContain("inline reference: ./open.json (ignored: a forced mapping applies)");
+    expect(report).toContain("./policy.json (config wins, forced)");
+  });
+
   it("reports a matching config mapping", async () => {
     await writeFile(
       path.join(dir, "sill.config.json"),

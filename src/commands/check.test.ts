@@ -10,6 +10,7 @@ import { runCheck } from "./check.ts";
 
 describe("runCheck", () => {
   let dir: string;
+  let output: string[];
   const options = (overrides: Partial<CliOptions> = {}): CliOptions => ({
     reporter: "json",
     offline: true,
@@ -20,11 +21,31 @@ describe("runCheck", () => {
     ...overrides,
   });
   const write = (name: string, content: string) => writeFile(path.join(dir, name), content);
+  /** A config mapping `files` to a schema requiring the two supply-chain policy keys. */
+  const writePolicy = async (mapping: { force: boolean; files?: string }) => {
+    await write("policy.json", '{"type":"object","required":["minimumReleaseAge","trustPolicy"]}');
+    await write(
+      "sill.config.json",
+      JSON.stringify({
+        catalog: false,
+        schemas: [
+          {
+            files: mapping.files ?? "pnpm-workspace.yaml",
+            schema: "./policy.json",
+            force: mapping.force,
+          },
+        ],
+      }),
+    );
+  };
 
   beforeEach(async () => {
     dir = await mkdtemp(path.join(tmpdir(), "sill-check-"));
     vi.spyOn(process, "cwd").mockReturnValue(dir);
-    vi.spyOn(console, "log").mockImplementation(() => {});
+    output = [];
+    vi.spyOn(console, "log").mockImplementation((line: unknown) => {
+      output.push(String(line));
+    });
     await write("schema.json", '{"type":"object","required":["name"]}');
     await write(
       "sill.config.json",
@@ -100,6 +121,52 @@ describe("runCheck", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(await runCheck(["tool.json"], options({ catalog: true, offline: false }))).toBe(0);
     expect(error).toHaveBeenCalledWith(expect.stringContaining("could not load catalog"));
+  });
+
+  it("lets a forced mapping beat a YAML modeline pointing at a permissive schema", async () => {
+    await writePolicy({ force: true });
+    await write("permissive.json", "{}");
+    await write(
+      "pnpm-workspace.yaml",
+      "# yaml-language-server: $schema=./permissive.json\npackages:\n  - x\n",
+    );
+    expect(await runCheck(["pnpm-workspace.yaml"], options())).toBe(1);
+    const report = output.join("\n");
+    expect(report).toContain("minimumReleaseAge");
+    expect(report).toContain("trustPolicy");
+  });
+
+  it("keeps the inline reference when the mapping is not forced", async () => {
+    await writePolicy({ force: false });
+    await write("permissive.json", "{}");
+    await write(
+      "pnpm-workspace.yaml",
+      "# yaml-language-server: $schema=./permissive.json\npackages:\n  - x\n",
+    );
+    expect(await runCheck(["pnpm-workspace.yaml"], options())).toBe(0);
+  });
+
+  it("lets a forced mapping beat a JSON $schema key", async () => {
+    await writePolicy({ force: true, files: "data.json" });
+    await write("permissive.json", "{}");
+    await write("data.json", '{"$schema":"./permissive.json"}');
+    expect(await runCheck(["data.json"], options())).toBe(1);
+  });
+
+  it("lets a forced mapping beat a TOML schema directive", async () => {
+    await writePolicy({ force: true, files: "data.toml" });
+    await write("permissive.json", "{}");
+    await write("data.toml", '#:schema ./permissive.json\nname = "x"\n');
+    expect(await runCheck(["data.toml"], options())).toBe(1);
+  });
+
+  it("validates a compliant file against the forced schema", async () => {
+    await writePolicy({ force: true });
+    await write(
+      "pnpm-workspace.yaml",
+      "# yaml-language-server: $schema=./permissive.json\nminimumReleaseAge: 10080\ntrustPolicy: no-downgrade\n",
+    );
+    expect(await runCheck(["pnpm-workspace.yaml"], options())).toBe(0);
   });
 
   it("reports schemas that cannot be loaded", async () => {

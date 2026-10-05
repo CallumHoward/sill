@@ -37,7 +37,7 @@ export class ParseIssue extends Error {
 /** How a file came to be associated with its schema. */
 export type AssociationSource =
   | { kind: "inline" }
-  | { kind: "config"; pattern: string }
+  | { kind: "config"; pattern: string; forced?: boolean }
   | { kind: "catalog"; catalogUrl: string; pattern: string };
 
 export interface Association {
@@ -63,8 +63,11 @@ export interface SillConfig {
   /** Stop the upward config-file search at this directory. */
   root?: boolean;
   exclude?: string[];
-  /** Ordered glob→schema mappings; first match wins. */
-  schemas?: { files: string | string[]; schema: string }[];
+  /**
+   * Ordered glob→schema mappings; first match wins. A mapping with `force: true` also beats a
+   * file's own inline `$schema` reference, and every forced mapping is checked before any other.
+   */
+  schemas?: { files: string | string[]; schema: string; force?: boolean }[];
   /** Extra catalog URLs consulted before SchemaStore. */
   registries?: string[];
   /** Consult the SchemaStore catalog (default true). */

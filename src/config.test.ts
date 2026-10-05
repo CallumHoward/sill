@@ -36,6 +36,31 @@ describe("loadConfig", () => {
     ]);
   });
 
+  it("carries force through to the normalized mappings", async () => {
+    await writeFile(
+      path.join(dir, "sill.config.json"),
+      '{"schemas":[{"files":"a.json","schema":"./a.json","force":true},{"files":"b.json","schema":"./b.json"}]}',
+    );
+    const mappings = schemaMappings(await loadConfig(dir));
+    expect(mappings.map((mapping) => mapping.force === true)).toEqual([true, false]);
+  });
+
+  it("rejects a non-boolean force", async () => {
+    await writeFile(
+      path.join(dir, "sill.config.json"),
+      '{"schemas":[{"files":"a.json","schema":"./a.json","force":"false"}]}',
+    );
+    await expect(loadConfig(dir)).rejects.toThrow(/"force" must be a boolean/);
+  });
+
+  it("rejects unknown keys in a schema mapping, so a typo cannot weaken a policy", async () => {
+    await writeFile(
+      path.join(dir, "sill.config.json"),
+      '{"schemas":[{"files":"a.json","schema":"./a.json","forced":true}]}',
+    );
+    await expect(loadConfig(dir)).rejects.toThrow(/unknown key "forced"/);
+  });
+
   it("walks upward to find the nearest config", async () => {
     await writeFile(path.join(dir, "sill.config.json"), `{"exclude": ["x/**"]}`);
     const nested = path.join(dir, "a", "b");
