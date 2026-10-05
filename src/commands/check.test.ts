@@ -59,6 +59,49 @@ describe("runCheck", () => {
     expect(await runCheck([], options({ failOnUnmatched: true }))).toBe(1);
   });
 
+  it("validates against an inline $schema reference", async () => {
+    await write("inline.json", '{"$schema":"./schema.json"}');
+    expect(await runCheck(["inline.json"], options())).toBe(1);
+    await write("inline.json", '{"$schema":"./schema.json","name":"x"}');
+    expect(await runCheck(["inline.json"], options())).toBe(0);
+  });
+
+  it("honors a custom cache ttl", async () => {
+    await write("good.json", '{"name":"x"}');
+    expect(await runCheck([], options({ ttl: "1h" }))).toBe(0);
+  });
+
+  it("validates against catalog matches", async () => {
+    await write("sill.config.json", '{"registries":["https://registry.test/catalog.json"]}');
+    await write("tool.json", "{}");
+    const catalog = {
+      schemas: [{ url: "https://registry.test/tool.schema.json", fileMatch: ["tool.json"] }],
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>((input) =>
+        Promise.resolve(
+          typeof input === "string" && input.endsWith("catalog.json")
+            ? Response.json(catalog)
+            : Response.json({ type: "object", required: ["name"] }),
+        ),
+      ),
+    );
+    expect(await runCheck(["tool.json"], options({ catalog: true, offline: false }))).toBe(1);
+  });
+
+  it("warns when a catalog cannot be loaded and keeps going", async () => {
+    await write("sill.config.json", '{"registries":["https://registry.test/catalog.json"]}');
+    await write("tool.json", "{}");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>(() => Promise.reject(new Error("offline"))),
+    );
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await runCheck(["tool.json"], options({ catalog: true, offline: false }))).toBe(0);
+    expect(error).toHaveBeenCalledWith(expect.stringContaining("could not load catalog"));
+  });
+
   it("reports schemas that cannot be loaded", async () => {
     await write(
       "sill.config.json",

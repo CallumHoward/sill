@@ -63,6 +63,24 @@ describe("loadConfig", () => {
     await expect(loadConfig(dir)).rejects.toThrow(/needs a "schema" string/);
   });
 
+  it("rejects configs that are not objects", async () => {
+    await writeFile(path.join(dir, "sill.config.json"), "[]");
+    await expect(loadConfig(dir)).rejects.toThrow(/config must be an object/);
+  });
+
+  it("rejects schema mappings without a schema", async () => {
+    await writeFile(path.join(dir, "sill.config.json"), '{"schemas":[{"files":"a.json"}]}');
+    await expect(loadConfig(dir)).rejects.toThrow(/needs a "schema" string/);
+  });
+
+  it("rejects schema mappings without files", async () => {
+    await writeFile(
+      path.join(dir, "sill.config.json"),
+      '{"schemas":[{"files":[],"schema":"./s.json"}]}',
+    );
+    await expect(loadConfig(dir)).rejects.toThrow(/needs "files" glob/);
+  });
+
   it("rejects invalid JSONC", async () => {
     await writeFile(path.join(dir, "sill.config.json"), `{"schemas": `);
     await expect(loadConfig(dir)).rejects.toThrow(/invalid JSONC/);
@@ -95,6 +113,13 @@ describe("loadVendorStore", () => {
     const store = await loadVendorStore(await loadConfig(dir));
     expect(store?.dir).toBe(path.join(dir, "schemas"));
     expect(store?.manifest).toEqual({ "https://example.com/s.json": "s.json" });
+  });
+
+  it("surfaces a corrupt vendor manifest", async () => {
+    await writeFile(path.join(dir, "sill.config.json"), `{"vendor": {"dir": "vendored"}}`);
+    await mkdir(path.join(dir, "vendored"));
+    await writeFile(path.join(dir, "vendored", "manifest.json"), "not json");
+    await expect(loadVendorStore(await loadConfig(dir))).rejects.toThrow(SyntaxError);
   });
 
   it("yields an empty manifest for a fresh vendor dir", async () => {

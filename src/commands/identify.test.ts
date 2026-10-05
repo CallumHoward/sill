@@ -44,6 +44,11 @@ describe("runIdentify", () => {
     expect(output[0]).toContain("unsupported format");
   });
 
+  it("accepts a custom cache ttl", async () => {
+    await writeFile(path.join(dir, "a.json"), '{"$schema":"./s.json"}');
+    expect(await runIdentify(["a.json"], options({ ttl: "1h" }))).toBe(0);
+  });
+
   it("prefers an inline $schema reference", async () => {
     await writeFile(path.join(dir, "a.json"), '{"$schema":"./s.json"}');
     expect(await runIdentify(["a.json"], options())).toBe(0);
