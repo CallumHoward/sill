@@ -76,7 +76,7 @@
     "@wcmj/config-base": "^0.3.0",
     "fallow": "^3.30.0",
     "lefthook": "^2.1.14",
-    "oxfmt": "^0.58.0",
+    "oxfmt": "^0.71.0",
     "oxlint": "^1.85.0",
     "oxlint-tsgolint": "^7.0.2003",
     "stylelint": "^17.15.0",
