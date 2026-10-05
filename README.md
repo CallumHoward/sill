@@ -10,7 +10,7 @@ and TOML** — with error messages that point at the exact line and column.
 > above, inspired parts of this design.)
 
 ```sh
-npx @callumhoward/sill check          # validate every config file in the repo
+npx @wcmj/sill check          # validate every config file in the repo
 ```
 
 Runs on Node ≥ 20.19, Bun, and Deno.
@@ -102,14 +102,14 @@ schema's `$ref` closure, so review diffs show exactly what changed upstream.
 ## CI recipe (GitHub Actions)
 
 ```yaml
-- run: npx @callumhoward/sill check
+- run: npx @wcmj/sill check
   # In Actions, failures surface as inline ::error annotations automatically.
 ```
 
 ## Programmatic use
 
 ```ts
-import type { Diagnostic, SillConfig } from "@callumhoward/sill";
+import type { Diagnostic, SillConfig } from "@wcmj/sill";
 ```
 
 The CLI is the primary interface; the library surface is currently types-only
