@@ -45,18 +45,15 @@ importers:
       '@types/picomatch':
         specifier: ^4.0.3
         version: 4.0.3
-      '@typescript/native-preview':
-        specifier: 7.0.0-dev.20260629.1
-        version: 7.0.0-dev.20260629.1
+      '@typescript/native':
+        specifier: npm:typescript@^7.0.2
+        version: typescript@7.0.2
       '@vitest/coverage-v8':
         specifier: ^5.0.1
         version: 5.0.1(vitest@5.0.1)
       '@wcmj/config-base':
         specifier: ^0.1.3
-        version: 0.1.3(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(typescript@6.0.3))(typescript@6.0.3)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)
-      eslint-plugin-check-file:
-        specifier: ^3.3.2
-        version: 3.3.2(eslint@10.6.0)
+        version: 0.1.3(@typescript-eslint/parser@8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0))(@typescript/typescript6@6.0.2)(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(@typescript/typescript6@6.0.2))(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)
       fallow:
         specifier: ^3.30.0
         version: 3.30.0
@@ -74,13 +71,13 @@ importers:
         version: 7.0.2003
       stylelint:
         specifier: ^17.15.0
-        version: 17.15.0(typescript@6.0.3)
+        version: 17.15.0(@typescript/typescript6@6.0.2)
       tsdown:
         specifier: ^0.22.14
-        version: 0.22.14(@typescript/native-preview@7.0.0-dev.20260629.1)(typescript@6.0.3)
+        version: 0.22.14(@typescript/typescript6@6.0.2)
       typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
+        specifier: npm:@typescript/typescript6@^6.0.2
+        version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: ^5.0.1
         version: 5.0.1(@types/node@24.19.0)(@vitest/coverage-v8@5.0.1)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))
@@ -885,53 +882,6 @@ packages:
     resolution: {integrity: sha512-Vwj9lUIW5Xq3wQ9w6gv3R86g1hMK8f2zNOdGTAgeXUMMXFK78G9ruCjjqutHMNJc0+CH7LYRnHeUB9IT8wFmcw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-wXRExZJweYoTzE4atRR7T5HwKJYkl6/KHxON0eF0iy2fvgLXDlyq4AQqhmV8mMx10PQKc/4sNbfhD4kjWWvm8A==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-xkL/tETzUuDxfRkk2rD0/CjjjGLyOLHeE103T52rpgj0VNSXMnn7tTiw+TSdxnS61b8ImOrWgQJujhPFTp0jng==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-y4ey82krq4iLNHML4G1dUObBWY6gNAjVqaUHFDv7+LBu5bfAJy8VClBaLtAJce3siQQeB0/4SkN4XsAa0oZktQ==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-QlTxO+O6yELc0NYZZYIbncZhkhw+K/vBoVg+mKipbEIK5b1E6cwW7ivWIrDp1FfssQ0Wu7zxincPappoci7KNw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm]
-    os: [linux]
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-ckb4HyugC5beDpOMPOVpEx1H3l2Z2RgsGPxFOLGMU6LLIHQwlCaSdRjSfH8Hq8yffPgKuotTQLdA89cP1IC8xQ==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [linux]
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-Ktgepu9p0blqrbiryzYrw11ddnbESXPdeGKURDG/wXESoHQETsMNxKWhqAo587ItNnWjKOBFxoEM22eP9OzKnw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-b2wmeIpFJs/peej3NG26320ya+iYQz21JzFYDrnvtsEeR/g66rB9uvp4Owo4J1AG/BcmRWC/nuwrBy3Jdb+UDA==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [win32]
-
-  '@typescript/native-preview@7.0.0-dev.20260629.1':
-    resolution: {integrity: sha512-KImWFkxGUa/V78bUEAgzeJQT+6wKQXDDYHHrOavof8wnbMCpj86KuPNyBIPQMtoHiz2If8aNTums2m50oE3oqw==}
-    engines: {node: '>=16.20.0'}
-    hasBin: true
-
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
     engines: {node: '>=16.20.0'}
@@ -1051,6 +1001,10 @@ packages:
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
+
+  '@typescript/typescript6@6.0.2':
+    resolution: {integrity: sha512-mbCddXd+jm7hfx7w2YU64/Av4/NqqeG3GoRZgxPcgoTxYjhrcfJRw9ULch71SS4G+Q3bOXFhRvPqjguN0Hyp5w==}
+    hasBin: true
 
   '@vitest/coverage-v8@5.0.1':
     resolution: {integrity: sha512-FRC8ACiudC3dI6MTplzRSYWHDRnIv2IPfbzs4FdoJNsMal/35sWV8hwIfV8ZcqzSPy+uXHeMVONt9CEqtOU17w==}
@@ -2579,14 +2533,14 @@ snapshots:
     dependencies:
       postcss-selector-parser: 7.1.6
 
-  '@csstools/stylelint-formatter-github@2.0.0(stylelint@17.15.0(typescript@6.0.3))':
+  '@csstools/stylelint-formatter-github@2.0.0(stylelint@17.15.0(@typescript/typescript6@6.0.2))':
     dependencies:
-      stylelint: 17.15.0(typescript@6.0.3)
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
 
-  '@double-great/stylelint-a11y@3.5.4(stylelint@17.15.0(typescript@6.0.3))':
+  '@double-great/stylelint-a11y@3.5.4(stylelint@17.15.0(@typescript/typescript6@6.0.2))':
     dependencies:
       postcss: 8.5.28
-      stylelint: 17.15.0(typescript@6.0.3)
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
 
   '@emnapi/core@1.11.1':
     dependencies:
@@ -2980,40 +2934,40 @@ snapshots:
 
   '@types/picomatch@4.0.3': {}
 
-  '@typescript-eslint/eslint-plugin@8.70.1(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(typescript@6.0.3)':
+  '@typescript-eslint/eslint-plugin@8.70.1(@typescript-eslint/parser@8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0))(@typescript/typescript6@6.0.2)(eslint@10.6.0)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.70.1(eslint@10.6.0)(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0)
       '@typescript-eslint/scope-manager': 8.70.1
-      '@typescript-eslint/type-utils': 8.70.1(eslint@10.6.0)(typescript@6.0.3)
-      '@typescript-eslint/utils': 8.70.1(eslint@10.6.0)(typescript@6.0.3)
+      '@typescript-eslint/type-utils': 8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0)
+      '@typescript-eslint/utils': 8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0)
       '@typescript-eslint/visitor-keys': 8.70.1
       eslint: 10.6.0
       ignore: 7.0.10
       natural-compare: 1.4.0
-      ts-api-utils: 2.5.0(typescript@6.0.3)
-      typescript: 6.0.3
+      ts-api-utils: 2.5.0(@typescript/typescript6@6.0.2)
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3)':
+  '@typescript-eslint/parser@8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.70.1
       '@typescript-eslint/types': 8.70.1
-      '@typescript-eslint/typescript-estree': 8.70.1(typescript@6.0.3)
+      '@typescript-eslint/typescript-estree': 8.70.1(@typescript/typescript6@6.0.2)
       '@typescript-eslint/visitor-keys': 8.70.1
       debug: 4.4.3
       eslint: 10.6.0
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/project-service@8.70.1(typescript@6.0.3)':
+  '@typescript-eslint/project-service@8.70.1(@typescript/typescript6@6.0.2)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.70.1(typescript@6.0.3)
+      '@typescript-eslint/tsconfig-utils': 8.70.1(@typescript/typescript6@6.0.2)
       '@typescript-eslint/types': 8.70.1
       debug: 4.4.3
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - supports-color
 
@@ -3022,47 +2976,47 @@ snapshots:
       '@typescript-eslint/types': 8.70.1
       '@typescript-eslint/visitor-keys': 8.70.1
 
-  '@typescript-eslint/tsconfig-utils@8.70.1(typescript@6.0.3)':
+  '@typescript-eslint/tsconfig-utils@8.70.1(@typescript/typescript6@6.0.2)':
     dependencies:
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
 
-  '@typescript-eslint/type-utils@8.70.1(eslint@10.6.0)(typescript@6.0.3)':
+  '@typescript-eslint/type-utils@8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0)':
     dependencies:
       '@typescript-eslint/types': 8.70.1
-      '@typescript-eslint/typescript-estree': 8.70.1(typescript@6.0.3)
-      '@typescript-eslint/utils': 8.70.1(eslint@10.6.0)(typescript@6.0.3)
+      '@typescript-eslint/typescript-estree': 8.70.1(@typescript/typescript6@6.0.2)
+      '@typescript-eslint/utils': 8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0)
       debug: 4.4.3
       eslint: 10.6.0
-      ts-api-utils: 2.5.0(typescript@6.0.3)
-      typescript: 6.0.3
+      ts-api-utils: 2.5.0(@typescript/typescript6@6.0.2)
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - supports-color
 
   '@typescript-eslint/types@8.70.1': {}
 
-  '@typescript-eslint/typescript-estree@8.70.1(typescript@6.0.3)':
+  '@typescript-eslint/typescript-estree@8.70.1(@typescript/typescript6@6.0.2)':
     dependencies:
-      '@typescript-eslint/project-service': 8.70.1(typescript@6.0.3)
-      '@typescript-eslint/tsconfig-utils': 8.70.1(typescript@6.0.3)
+      '@typescript-eslint/project-service': 8.70.1(@typescript/typescript6@6.0.2)
+      '@typescript-eslint/tsconfig-utils': 8.70.1(@typescript/typescript6@6.0.2)
       '@typescript-eslint/types': 8.70.1
       '@typescript-eslint/visitor-keys': 8.70.1
       debug: 4.4.3
       minimatch: 10.2.6
       semver: 7.8.5
       tinyglobby: 0.2.17
-      ts-api-utils: 2.5.0(typescript@6.0.3)
-      typescript: 6.0.3
+      ts-api-utils: 2.5.0(@typescript/typescript6@6.0.2)
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@8.70.1(eslint@10.6.0)(typescript@6.0.3)':
+  '@typescript-eslint/utils@8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0)':
     dependencies:
       '@eslint-community/eslint-utils': 4.10.1(eslint@10.6.0)
       '@typescript-eslint/scope-manager': 8.70.1
       '@typescript-eslint/types': 8.70.1
-      '@typescript-eslint/typescript-estree': 8.70.1(typescript@6.0.3)
+      '@typescript-eslint/typescript-estree': 8.70.1(@typescript/typescript6@6.0.2)
       eslint: 10.6.0
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - supports-color
 
@@ -3070,37 +3024,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.70.1
       eslint-visitor-keys: 5.0.1
-
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260629.1':
-    optional: true
-
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260629.1':
-    optional: true
-
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260629.1':
-    optional: true
-
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260629.1':
-    optional: true
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260629.1':
-    optional: true
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260629.1':
-    optional: true
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260629.1':
-    optional: true
-
-  '@typescript/native-preview@7.0.0-dev.20260629.1':
-    optionalDependencies:
-      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260629.1
-      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260629.1
-      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260629.1
-      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260629.1
-      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260629.1
-      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260629.1
-      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260629.1
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
@@ -3162,6 +3085,10 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
+  '@typescript/typescript6@6.0.2':
+    dependencies:
+      '@typescript/old': typescript@6.0.3
+
   '@vitest/coverage-v8@5.0.1(vitest@5.0.1)':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
@@ -3191,12 +3118,12 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@wcmj/config-base@0.1.3(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(typescript@6.0.3))(typescript@6.0.3)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)':
+  '@wcmj/config-base@0.1.3(@typescript-eslint/parser@8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0))(@typescript/typescript6@6.0.2)(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(@typescript/typescript6@6.0.2))(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)':
     dependencies:
-      '@csstools/stylelint-formatter-github': 2.0.0(stylelint@17.15.0(typescript@6.0.3))
-      '@double-great/stylelint-a11y': 3.5.4(stylelint@17.15.0(typescript@6.0.3))
+      '@csstools/stylelint-formatter-github': 2.0.0(stylelint@17.15.0(@typescript/typescript6@6.0.2))
+      '@double-great/stylelint-a11y': 3.5.4(stylelint@17.15.0(@typescript/typescript6@6.0.2))
       '@eslint-community/eslint-plugin-eslint-comments': 4.8.1(eslint@10.6.0)
-      '@typescript-eslint/eslint-plugin': 8.70.1(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(typescript@6.0.3)
+      '@typescript-eslint/eslint-plugin': 8.70.1(@typescript-eslint/parser@8.70.1(@typescript/typescript6@6.0.2)(eslint@10.6.0))(@typescript/typescript6@6.0.2)(eslint@10.6.0)
       eslint-plugin-check-file: 3.3.2(eslint@10.6.0)
       eslint-plugin-unicorn: 64.0.0(eslint@10.6.0)
       fallow: 3.30.0
@@ -3204,13 +3131,13 @@ snapshots:
       oxfmt: 0.58.0
       oxlint: 1.85.0(oxlint-tsgolint@7.0.2003)
       oxlint-tsgolint: 7.0.2003
-      stylelint: 17.15.0(typescript@6.0.3)
-      stylelint-config-standard: 40.0.0(stylelint@17.15.0(typescript@6.0.3))
-      stylelint-order: 8.1.1(stylelint@17.15.0(typescript@6.0.3))
-      stylelint-plugin-use-baseline: 1.4.6(stylelint@17.15.0(typescript@6.0.3))
-      stylelint-use-nesting: 6.0.2(stylelint@17.15.0(typescript@6.0.3))
-      stylelint-value-no-unknown-custom-properties: 6.1.1(stylelint@17.15.0(typescript@6.0.3))
-      typescript: 6.0.3
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
+      stylelint-config-standard: 40.0.0(stylelint@17.15.0(@typescript/typescript6@6.0.2))
+      stylelint-order: 8.1.1(stylelint@17.15.0(@typescript/typescript6@6.0.2))
+      stylelint-plugin-use-baseline: 1.4.6(stylelint@17.15.0(@typescript/typescript6@6.0.2))
+      stylelint-use-nesting: 6.0.2(stylelint@17.15.0(@typescript/typescript6@6.0.2))
+      stylelint-value-no-unknown-custom-properties: 6.1.1(stylelint@17.15.0(@typescript/typescript6@6.0.2))
+      typescript: '@typescript/typescript6@6.0.2'
       vite: 8.1.0(@types/node@24.19.0)(yaml@2.9.1)
       vitest: 5.0.1(@types/node@24.19.0)(@vitest/coverage-v8@5.0.1)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))
     transitivePeerDependencies:
@@ -3400,14 +3327,14 @@ snapshots:
     dependencies:
       browserslist: 4.29.2
 
-  cosmiconfig@9.0.2(typescript@6.0.3):
+  cosmiconfig@9.0.2(@typescript/typescript6@6.0.2):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.3.2
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
 
   cross-spawn@7.0.6:
     dependencies:
@@ -4065,7 +3992,7 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  rolldown-plugin-dts@0.27.14(@typescript/native-preview@7.0.0-dev.20260629.1)(rolldown@1.2.11)(typescript@6.0.3):
+  rolldown-plugin-dts@0.27.14(@typescript/typescript6@6.0.2)(rolldown@1.2.11):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.5
@@ -4075,8 +4002,7 @@ snapshots:
       yuku-codegen: 0.8.7
       yuku-parser: 0.8.7
     optionalDependencies:
-      '@typescript/native-preview': 7.0.0-dev.20260629.1
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - oxc-resolver
 
@@ -4173,41 +4099,41 @@ snapshots:
 
   strip-indent@4.1.1: {}
 
-  stylelint-config-recommended@18.0.0(stylelint@17.15.0(typescript@6.0.3)):
+  stylelint-config-recommended@18.0.0(stylelint@17.15.0(@typescript/typescript6@6.0.2)):
     dependencies:
-      stylelint: 17.15.0(typescript@6.0.3)
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
 
-  stylelint-config-standard@40.0.0(stylelint@17.15.0(typescript@6.0.3)):
+  stylelint-config-standard@40.0.0(stylelint@17.15.0(@typescript/typescript6@6.0.2)):
     dependencies:
-      stylelint: 17.15.0(typescript@6.0.3)
-      stylelint-config-recommended: 18.0.0(stylelint@17.15.0(typescript@6.0.3))
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
+      stylelint-config-recommended: 18.0.0(stylelint@17.15.0(@typescript/typescript6@6.0.2))
 
-  stylelint-order@8.1.1(stylelint@17.15.0(typescript@6.0.3)):
+  stylelint-order@8.1.1(stylelint@17.15.0(@typescript/typescript6@6.0.2)):
     dependencies:
       postcss: 8.5.28
       postcss-sorting: 10.0.0(postcss@8.5.28)
-      stylelint: 17.15.0(typescript@6.0.3)
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
 
-  stylelint-plugin-use-baseline@1.4.6(stylelint@17.15.0(typescript@6.0.3)):
+  stylelint-plugin-use-baseline@1.4.6(stylelint@17.15.0(@typescript/typescript6@6.0.2)):
     dependencies:
       css-tree: 3.2.1
       is-plain-object: 5.1.0
       postcss: 8.5.28
       postcss-value-parser: 4.2.0
-      stylelint: 17.15.0(typescript@6.0.3)
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
 
-  stylelint-use-nesting@6.0.2(stylelint@17.15.0(typescript@6.0.3)):
+  stylelint-use-nesting@6.0.2(stylelint@17.15.0(@typescript/typescript6@6.0.2)):
     dependencies:
       postcss-selector-parser: 7.1.6
-      stylelint: 17.15.0(typescript@6.0.3)
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
 
-  stylelint-value-no-unknown-custom-properties@6.1.1(stylelint@17.15.0(typescript@6.0.3)):
+  stylelint-value-no-unknown-custom-properties@6.1.1(stylelint@17.15.0(@typescript/typescript6@6.0.2)):
     dependencies:
       postcss-value-parser: 4.2.0
       resolve: 1.22.12
-      stylelint: 17.15.0(typescript@6.0.3)
+      stylelint: 17.15.0(@typescript/typescript6@6.0.2)
 
-  stylelint@17.15.0(typescript@6.0.3):
+  stylelint@17.15.0(@typescript/typescript6@6.0.2):
     dependencies:
       '@csstools/css-calc': 3.4.1(@csstools/css-parser-algorithms@4.0.1(@csstools/css-tokenizer@4.0.2))(@csstools/css-tokenizer@4.0.2)
       '@csstools/css-parser-algorithms': 4.0.1(@csstools/css-tokenizer@4.0.2)
@@ -4217,7 +4143,7 @@ snapshots:
       '@csstools/selector-resolve-nested': 4.0.2(postcss-selector-parser@7.1.6)
       '@csstools/selector-specificity': 6.0.0(postcss-selector-parser@7.1.6)
       colord: 2.10.0
-      cosmiconfig: 9.0.2(typescript@6.0.3)
+      cosmiconfig: 9.0.2(@typescript/typescript6@6.0.2)
       css-functions-list: 3.3.3
       css-tree: 3.2.1
       debug: 4.4.3
@@ -4292,11 +4218,11 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
-  ts-api-utils@2.5.0(typescript@6.0.3):
+  ts-api-utils@2.5.0(@typescript/typescript6@6.0.2):
     dependencies:
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
 
-  tsdown@0.22.14(@typescript/native-preview@7.0.0-dev.20260629.1)(typescript@6.0.3):
+  tsdown@0.22.14(@typescript/typescript6@6.0.2):
     dependencies:
       ansis: 4.4.0
       cac: 7.0.0
@@ -4307,14 +4233,14 @@ snapshots:
       obug: 2.2.1
       picomatch: 4.0.7
       rolldown: 1.2.11
-      rolldown-plugin-dts: 0.27.14(@typescript/native-preview@7.0.0-dev.20260629.1)(rolldown@1.2.11)(typescript@6.0.3)
+      rolldown-plugin-dts: 0.27.14(@typescript/typescript6@6.0.2)(rolldown@1.2.11)
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
       verkit: 0.3.2
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
       - '@typescript/native-preview'
       - '@volar/typescript'
@@ -4352,7 +4278,6 @@ snapshots:
       '@typescript/typescript-sunos-x64': 7.0.2
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
-    optional: true
 
   unconfig-core@7.5.0:
     dependencies:
