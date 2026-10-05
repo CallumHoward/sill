@@ -2,4 +2,11 @@
   "$schema": "./sill.config.schema.json",
   // Fixture files are intentionally invalid; the vendored store is not an instance.
   "exclude": ["fixtures/**", "schemas/**"],
+  // pnpm-workspace.yaml has no SchemaStore entry; assert the shared supply-chain policy.
+  "schemas": [
+    {
+      "files": "pnpm-workspace.yaml",
+      "schema": "./node_modules/@wcmj/config-base/schema/pnpm-workspace.json",
+    },
+  ],
 }

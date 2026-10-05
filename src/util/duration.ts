@@ -5,5 +5,5 @@ export function parseDuration(input: string): number {
   const match = /^(\d+(?:\.\d+)?)(ms|s|m|h|d)?$/.exec(input.trim());
   if (!match) throw new Error(`invalid duration "${input}" (expected e.g. 12h, 30m, 45s)`);
   const [, num, unit = "ms"] = match;
-  return Number(num) * UNITS[unit]!;
+  return Number(num) * (UNITS[unit] ?? 1);
 }

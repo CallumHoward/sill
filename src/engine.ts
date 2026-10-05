@@ -16,7 +16,7 @@ const addFormats = (
 export type Dialect = "2020-12" | "2019-09" | "draft-07" | "draft-06" | "draft-04";
 
 /** Map a schema's $schema meta-URI to its dialect; default to the latest. */
-export function dialectOf(metaSchema: unknown): Dialect {
+export function dialectOf(metaSchema?: unknown): Dialect {
   const meta = typeof metaSchema === "string" ? metaSchema : "";
   if (meta.includes("2019-09")) return "2019-09";
   if (meta.includes("draft-04")) return "draft-04";
@@ -53,22 +53,27 @@ export function createEngine(options: EngineOptions): Engine {
       logger: { log: () => {}, warn: () => {}, error: () => {} },
     };
     switch (dialect) {
-      case "2020-12":
+      case "2020-12": {
         ajv = new Ajv2020(opts);
         break;
-      case "2019-09":
+      }
+      case "2019-09": {
         ajv = new Ajv2019(opts);
         break;
-      case "draft-04":
+      }
+      case "draft-04": {
         ajv = new AjvDraft04(opts);
         break;
-      case "draft-06":
+      }
+      case "draft-06": {
         ajv = new Ajv(opts);
-        ajv.addMetaSchema(draft06Meta as AnySchemaObject);
+        ajv.addMetaSchema(draft06Meta);
         break;
-      case "draft-07":
+      }
+      case "draft-07": {
         ajv = new Ajv(opts);
         break;
+      }
     }
     addFormats(ajv);
     instances.set(dialect, ajv);

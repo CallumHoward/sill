@@ -20,10 +20,10 @@ export class LineIndex {
     let hi = starts.length - 1;
     while (lo < hi) {
       const mid = Math.ceil((lo + hi) / 2);
-      if (starts[mid]! <= clamped) lo = mid;
+      if ((starts[mid] ?? 0) <= clamped) lo = mid;
       else hi = mid - 1;
     }
-    return { line: lo + 1, column: clamped - starts[lo]! + 1 };
+    return { line: lo + 1, column: clamped - (starts[lo] ?? 0) + 1 };
   }
 
   #starts(): number[] {

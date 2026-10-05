@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import path from "node:path";
 import process from "node:process";
 
 import packageJson from "../../package.json" with { type: "json" };
@@ -49,7 +49,7 @@ export async function runCheck(args: string[], options: CliOptions): Promise<num
 
   const cache = new SchemaCache({
     cacheDir: options.cacheDir ?? defaultCacheDir(),
-    ttlMs: options.ttl !== undefined ? parseDuration(options.ttl) : DEFAULT_TTL_MS,
+    ttlMs: options.ttl === undefined ? DEFAULT_TTL_MS : parseDuration(options.ttl),
     offline: options.offline,
     concurrency: options.concurrency,
     userAgent: `sill/${packageJson.version}`,
@@ -117,24 +117,24 @@ async function readAndParse(
     files.map(async (file) => {
       const adapter = adapterForPath(file);
       if (!adapter) return null;
-      const text = await reads.run(() => readFile(resolve(cwd, file), "utf8"));
+      const text = await reads.run(() => readFile(path.resolve(cwd, file), "utf8"));
       state.sources.set(file, text);
       try {
         return { file, docs: adapter.parse(text) };
-      } catch (err) {
-        if (err instanceof ParseIssue) {
+      } catch (error) {
+        if (error instanceof ParseIssue) {
           state.diagnostics.push({
             file,
-            message: err.message,
+            message: error.message,
             keyword: "parse",
             instancePath: "",
-            span: err.span,
+            span: error.span,
           });
           state.invalidFiles.add(file);
           state.checkedFiles.add(file);
           return null;
         }
-        throw err;
+        throw error;
       }
     }),
   );
@@ -161,7 +161,7 @@ function groupBySchema(
         deps.registry,
         deps.cwd,
       );
-      const target: Target = { file: parsed.file, doc, association, schemaUri };
+      const target: Target = { file: parsed.file, doc: doc, association, schemaUri };
       const group = groups.get(schemaUri);
       if (group) group.push(target);
       else groups.set(schemaUri, [target]);
@@ -183,11 +183,11 @@ async function validateGroup(
   try {
     rootSchema = await deps.registry.load(schemaUri);
     validate = await deps.engine.compile(schemaUri, rootSchema as Record<string, unknown>);
-  } catch (err) {
+  } catch (error) {
     for (const target of targets) {
       state.diagnostics.push({
         file: target.file,
-        message: `could not load schema ${schemaUri}: ${(err as Error).message}`,
+        message: `could not load schema ${schemaUri}: ${(error as Error).message}`,
         keyword: "schema-load",
         instancePath: "",
         span: null,
@@ -236,15 +236,18 @@ function resolveAssociation(
   cwd: string,
 ): string {
   switch (association.source.kind) {
-    case "inline":
-      return registry.resolveRef(association.schemaUri, resolve(cwd, file));
-    case "config":
+    case "inline": {
+      return registry.resolveRef(association.schemaUri, path.resolve(cwd, file));
+    }
+    case "config": {
       return registry.resolveRef(
         association.schemaUri,
-        loaded?.path ?? resolve(cwd, "sill.config.jsonc"),
+        loaded?.path ?? path.resolve(cwd, "sill.config.jsonc"),
       );
-    case "catalog":
+    }
+    case "catalog": {
       return association.schemaUri;
+    }
   }
 }
 
@@ -271,8 +274,8 @@ async function buildAssociator(
       try {
         const response = await cache.fetchText(url);
         return compileCatalog(url, JSON.parse(response.body));
-      } catch (err) {
-        console.error(`sill: warning: could not load catalog ${url}: ${(err as Error).message}`);
+      } catch (error) {
+        console.error(`sill: warning: could not load catalog ${url}: ${(error as Error).message}`);
         return null;
       }
     }),

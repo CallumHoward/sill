@@ -1,5 +1,5 @@
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import path from "node:path";
 
 import { sha256Hex } from "./util/hash.ts";
 import { Semaphore } from "./util/semaphore.ts";
@@ -69,14 +69,14 @@ export class SchemaCache {
     }
     try {
       return await this.#semaphore.run(() => this.#revalidate(url, envelope));
-    } catch (err) {
+    } catch (error) {
       if (envelope) {
-        const message = err instanceof Error ? err.message : String(err);
+        const message = error instanceof Error ? error.message : String(error);
         console.warn(`sill: using stale cache for ${url} (${message})`);
         return { body: envelope.body, fromCache: true, stale: true };
       }
-      const message = err instanceof Error ? err.message : String(err);
-      throw new Error(`failed to fetch ${url}: ${message}`, { cause: err });
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`failed to fetch ${url}: ${message}`, { cause: error });
     }
   }
 
@@ -104,7 +104,7 @@ export class SchemaCache {
   }
 
   #path(url: string): string {
-    return join(this.#opts.cacheDir, `${sha256Hex(url)}.json`);
+    return path.join(this.#opts.cacheDir, `${sha256Hex(url)}.json`);
   }
 
   async #read(url: string): Promise<Envelope | null> {

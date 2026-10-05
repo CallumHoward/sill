@@ -7,11 +7,11 @@ export function levenshtein(a: string, b: string): number {
     curr[0] = i;
     for (let j = 1; j <= b.length; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      curr[j] = Math.min(prev[j]! + 1, curr[j - 1]! + 1, prev[j - 1]! + cost);
+      curr[j] = Math.min((prev[j] ?? 0) + 1, (curr[j - 1] ?? 0) + 1, (prev[j - 1] ?? 0) + cost);
     }
     [prev, curr] = [curr, prev];
   }
-  return prev[b.length]!;
+  return prev[b.length] ?? 0;
 }
 
 /** Closest candidate within an edit-distance budget, or undefined. */
@@ -43,7 +43,7 @@ export function propertyCandidates(schema: unknown, rootSchema: unknown): string
     visited.add(node);
     const obj = node as Record<string, unknown>;
     if (obj.properties !== null && typeof obj.properties === "object") {
-      for (const key of Object.keys(obj.properties as object)) found.add(key);
+      for (const key of Object.keys(obj.properties)) found.add(key);
     }
     if (Array.isArray(obj.allOf)) {
       for (const sub of obj.allOf) visit(sub, depth + 1);

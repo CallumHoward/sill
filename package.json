@@ -40,7 +40,7 @@
     "lint:ci": "oxlint --type-aware --format=github",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
-    "check": "tsgo --noEmit",
+    "check": "tsc --noEmit",
     "fallow": "fallow --fail-on-issues",
     "prepublishOnly": "pnpm build",
     "postinstall": "lefthook install"
@@ -60,17 +60,18 @@
   "devDependencies": {
     "@types/node": "^24.19.0",
     "@types/picomatch": "^4.0.3",
-    "@typescript/native-preview": "7.0.0-dev.20260629.1",
-    "@vitest/coverage-v8": "^4.1.11",
-    "eslint-plugin-check-file": "^3.3.2",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@vitest/coverage-v8": "^5.0.1",
+    "@wcmj/config-base": "^0.3.0",
     "fallow": "^3.30.0",
     "lefthook": "^2.1.14",
-    "oxfmt": "^0.57.0",
+    "oxfmt": "^0.58.0",
     "oxlint": "^1.85.0",
     "oxlint-tsgolint": "^7.0.2003",
+    "stylelint": "^17.15.0",
     "tsdown": "^0.22.14",
-    "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vitest": "^5.0.1"
   },
   "engines": {
     "node": ">=20.19"

@@ -10,7 +10,7 @@ const CYAN = "36";
 
 export const prettyReporter: Reporter = {
   report(diagnostics, sources, summary) {
-    const useColor = process.stdout.isTTY === true && process.env.NO_COLOR === undefined;
+    const useColor = process.stdout.isTTY && process.env.NO_COLOR === undefined;
     const paint = (code: string, text: string): string =>
       useColor ? `\u001B[${code}m${text}\u001B[0m` : text;
 

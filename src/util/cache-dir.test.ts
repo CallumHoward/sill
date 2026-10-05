@@ -1,3 +1,5 @@
+import { homedir } from "node:os";
+import path from "node:path";
 import process from "node:process";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -17,6 +19,19 @@ describe("defaultCacheDir", () => {
   it("ends with a sill segment on every platform", () => {
     vi.stubEnv("SILL_CACHE_DIR", "");
     expect(defaultCacheDir().endsWith("sill")).toBe(true);
+  });
+
+  it("uses LOCALAPPDATA on windows", () => {
+    vi.stubEnv("SILL_CACHE_DIR", "");
+    vi.stubEnv("LOCALAPPDATA", path.join("C:", "Local"));
+    vi.spyOn(process, "platform", "get").mockReturnValue("win32");
+    expect(defaultCacheDir()).toBe(path.join("C:", "Local", "sill"));
+  });
+
+  it("uses ~/Library/Caches on macOS", () => {
+    vi.stubEnv("SILL_CACHE_DIR", "");
+    vi.spyOn(process, "platform", "get").mockReturnValue("darwin");
+    expect(defaultCacheDir()).toBe(path.join(homedir(), "Library", "Caches", "sill"));
   });
 
   it("uses XDG_CACHE_HOME on linux", () => {

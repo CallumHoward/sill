@@ -111,12 +111,9 @@ async function main(): Promise<number> {
   }
 }
 
-main().then(
-  (code) => {
-    process.exitCode = code;
-  },
-  (err: unknown) => {
-    console.error(err instanceof Error ? `sill: ${err.message}` : err);
-    process.exitCode = 2;
-  },
-);
+try {
+  process.exitCode = await main();
+} catch (error: unknown) {
+  console.error(error instanceof Error ? `sill: ${error.message}` : error);
+  process.exitCode = 2;
+}

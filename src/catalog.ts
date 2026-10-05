@@ -50,11 +50,11 @@ export class CompiledCatalog {
 
   constructor(catalogUrl: string, entries: CatalogEntry[]) {
     this.catalogUrl = catalogUrl;
-    entries.forEach((entry, index) => {
+    for (const [index, entry] of entries.entries()) {
       for (const pattern of entry.fileMatch ?? []) {
         this.#add(pattern, { index, url: entry.url, pattern });
       }
-    });
+    }
   }
 
   // fallow-ignore-next-line complexity
@@ -64,7 +64,7 @@ export class CompiledCatalog {
     best = better(best, this.#byPath.get(relPath));
 
     const dot = basename.lastIndexOf(".");
-    if (dot >= 0) {
+    if (dot !== -1) {
       for (const candidate of this.#byExtension.get(basename.slice(dot + 1)) ?? []) {
         if (basename.endsWith(candidate.suffix)) best = better(best, candidate);
       }
@@ -86,7 +86,7 @@ export class CompiledCatalog {
 
     const bareExtension = /^(?:\*\*\/)?(\*\.[^*?[\]{}()!/]+)$/.exec(pattern);
     if (bareExtension) {
-      const suffix = bareExtension[1]!.slice(1); // ".cdx.json"
+      const suffix = (bareExtension[1] ?? "").slice(1); // ".cdx.json"
       const key = suffix.slice(suffix.lastIndexOf(".") + 1);
       const bucket = this.#byExtension.get(key) ?? [];
       bucket.push({ ...candidate, suffix });
@@ -127,7 +127,9 @@ export function compileCatalog(catalogUrl: string, catalogJson: unknown): Compil
       ? (catalogJson as { schemas?: unknown }).schemas
       : undefined;
   const entries = Array.isArray(schemas)
-    ? schemas.map(parseEntry).filter((entry): entry is CatalogEntry => entry !== null)
+    ? schemas
+        .map((entry) => parseEntry(entry))
+        .filter((entry): entry is CatalogEntry => entry !== null)
     : [];
   return new CompiledCatalog(catalogUrl, entries);
 }

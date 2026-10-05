@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { relative, resolve } from "node:path";
+import path from "node:path";
 import process from "node:process";
 
 import packageJson from "../../package.json" with { type: "json" };
@@ -22,8 +22,8 @@ export async function runIdentify(args: string[], options: CliOptions): Promise<
     return 2;
   }
   const cwd = process.cwd();
-  const absPath = resolve(cwd, file);
-  const relPath = relative(cwd, absPath).replaceAll("\\", "/");
+  const absPath = path.resolve(cwd, file);
+  const relPath = path.relative(cwd, absPath).replaceAll("\\", "/");
 
   const adapter = adapterForPath(file);
   if (!adapter) {
@@ -61,7 +61,7 @@ export async function runIdentify(args: string[], options: CliOptions): Promise<
 function buildCache(options: CliOptions): SchemaCache {
   return new SchemaCache({
     cacheDir: options.cacheDir ?? defaultCacheDir(),
-    ttlMs: options.ttl !== undefined ? parseDuration(options.ttl) : 12 * 3_600_000,
+    ttlMs: options.ttl === undefined ? 12 * 3_600_000 : parseDuration(options.ttl),
     offline: options.offline,
     concurrency: options.concurrency,
     userAgent: `sill/${packageJson.version}`,
@@ -101,8 +101,8 @@ async function printCatalogChain(
         return;
       }
       console.log(`  catalog: ${url} — no match`);
-    } catch (err) {
-      console.log(`  catalog: ${url} — unavailable (${(err as Error).message})`);
+    } catch (error) {
+      console.log(`  catalog: ${url} — unavailable (${(error as Error).message})`);
     }
   }
   console.log("  → no schema association");

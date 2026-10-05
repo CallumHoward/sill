@@ -8,7 +8,7 @@ export async function runCache(args: string[], options: CliOptions): Promise<num
   const cacheDir = options.cacheDir ?? defaultCacheDir();
   if (subcommand === "clear") {
     const cache = new SchemaCache({
-      cacheDir,
+      cacheDir: cacheDir,
       ttlMs: 0,
       offline: true,
       concurrency: 1,

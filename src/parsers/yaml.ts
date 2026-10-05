@@ -23,7 +23,7 @@ export const yamlAdapter: ParserAdapter = {
   format: "yaml",
   extensions: [".yaml", ".yml"],
   parse(text: string): ParsedDoc[] {
-    // The modeline is file-scoped: it applies to every document in the stream.
+    // The modeline is file-scoped: it applies to every doc in the stream.
     const modeline = leadingCommentRef(text, MODELINE);
     return parseAllDocuments(text).map((doc) => {
       const error = doc.errors[0];

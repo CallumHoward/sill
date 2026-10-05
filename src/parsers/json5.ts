@@ -34,8 +34,8 @@ export const json5Adapter: ParserAdapter = {
     let body: ValueNode;
     try {
       body = parse(text, { mode: "json5", ranges: true }).body;
-    } catch (err) {
-      const { message, offset } = err as { message: string; offset?: number };
+    } catch (error) {
+      const { message, offset } = error as { message: string; offset?: number };
       throw new ParseIssue(`invalid JSON5: ${message}`, { offset: offset ?? 0, length: 1 });
     }
     const schemaNode = body.type === "Object" ? childNode(body, "$schema") : null;

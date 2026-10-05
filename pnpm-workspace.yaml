@@ -4,6 +4,8 @@ allowBuilds:
   unrs-resolver: true
 # Ignore versions published < 7 days ago, giving time to vet/yank releases.
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - "@wcmj/config-base"
 # Block versions with weaker trust attestation than prior releases.
 trustPolicy: no-downgrade
 trustPolicyExclude:

@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import path from "node:path";
 import process from "node:process";
 
 import packageJson from "../../package.json" with { type: "json" };
@@ -15,14 +15,14 @@ const MAX_DEPTH = 10;
 export async function runVendor(_args: string[], options: CliOptions): Promise<number> {
   const cwd = process.cwd();
   const loaded = await loadConfig(cwd, options.config);
-  const dir = resolve(loaded?.dir ?? cwd, loaded?.config.vendor?.dir ?? "schemas");
-  const manifestPath = join(dir, "manifest.json");
+  const dir = path.resolve(loaded?.dir ?? cwd, loaded?.config.vendor?.dir ?? "schemas");
+  const manifestPath = path.join(dir, "manifest.json");
 
   let manifest: Record<string, string>;
   try {
     manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Record<string, string>;
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     manifest = {};
   }
 
@@ -64,13 +64,13 @@ export async function runVendor(_args: string[], options: CliOptions): Promise<n
   }
 
   const sortedManifest = Object.fromEntries(
-    Object.entries(manifest).sort(([a], [b]) => a.localeCompare(b)),
+    Object.entries(manifest).toSorted(([a], [b]) => a.localeCompare(b)),
   );
   await Promise.all(
     Object.entries(sortedManifest).map(async ([url, name]) => {
       const schema = fetched.get(url);
       if (schema === undefined) return;
-      await writeFile(join(dir, name), `${JSON.stringify(schema, null, 2)}\n`);
+      await writeFile(path.join(dir, name), `${JSON.stringify(schema, null, 2)}\n`);
     }),
   );
   await writeFile(manifestPath, `${JSON.stringify(sortedManifest, null, 2)}\n`);
@@ -123,8 +123,7 @@ export function filenameFor(url: string, manifest: Record<string, string>): stri
   const base =
     new URL(url).pathname
       .split("/")
-      .filter(Boolean)
-      .at(-1)
+      .findLast(Boolean)
       ?.replaceAll(/[^\w.-]/g, "-")
       .replace(/\.json$/i, "") || "schema";
   for (let n = 0; ; n += 1) {

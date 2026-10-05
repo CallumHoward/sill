@@ -43,12 +43,12 @@ describe("didYouMean", () => {
 describe("propertyCandidates", () => {
   it("collects direct properties", () => {
     const schema = { properties: { a: {}, b: {} } };
-    expect(propertyCandidates(schema, schema).sort()).toEqual(["a", "b"]);
+    expect(propertyCandidates(schema, schema).toSorted()).toEqual(["a", "b"]);
   });
 
   it("recurses through allOf", () => {
     const schema = { allOf: [{ properties: { a: {} } }, { properties: { b: {} } }] };
-    expect(propertyCandidates(schema, schema).sort()).toEqual(["a", "b"]);
+    expect(propertyCandidates(schema, schema).toSorted()).toEqual(["a", "b"]);
   });
 
   it("resolves local $refs against the root schema", () => {
@@ -57,12 +57,11 @@ describe("propertyCandidates", () => {
       properties: { direct: {} },
     };
     const schema = { $ref: "#/definitions/base", properties: { own: {} } };
-    expect(propertyCandidates(schema, root).sort()).toEqual(["fromRef", "own"]);
+    expect(propertyCandidates(schema, root).toSorted()).toEqual(["fromRef", "own"]);
   });
 
   it("survives $ref cycles", () => {
-    const root: Record<string, unknown> = { properties: { a: {} } };
-    root.$ref = "#";
+    const root: Record<string, unknown> = { properties: { a: {} }, $ref: "#" };
     expect(propertyCandidates(root, root)).toEqual(["a"]);
   });
 
