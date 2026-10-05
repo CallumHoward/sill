@@ -1,6 +1,6 @@
 {
   "name": "@wcmj/sill",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Schema validation for config files: respects $schema and falls back to the SchemaStore catalog. JSON, JSONC, JSON5, YAML, TOML.",
   "keywords": [
     "config",
