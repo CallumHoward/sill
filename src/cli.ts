@@ -43,6 +43,8 @@ async function main(): Promise<number> {
   const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
     allowPositionals: true,
+    // Lets the boolean `catalog` (default true) be turned off with --no-catalog, as documented.
+    allowNegative: true,
     options: {
       reporter: { type: "string" },
       offline: { type: "boolean", default: false },
