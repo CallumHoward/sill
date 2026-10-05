@@ -64,7 +64,7 @@ export async function runVendor(_args: string[], options: CliOptions): Promise<n
   }
 
   const sortedManifest = Object.fromEntries(
-    Object.entries(manifest).sort(([a], [b]) => a.localeCompare(b)),
+    Object.entries(manifest).toSorted(([a], [b]) => a.localeCompare(b)),
   );
   await Promise.all(
     Object.entries(sortedManifest).map(async ([url, name]) => {
@@ -123,8 +123,7 @@ export function filenameFor(url: string, manifest: Record<string, string>): stri
   const base =
     new URL(url).pathname
       .split("/")
-      .filter(Boolean)
-      .at(-1)
+      .findLast(Boolean)
       ?.replaceAll(/[^\w.-]/g, "-")
       .replace(/\.json$/i, "") || "schema";
   for (let n = 0; ; n += 1) {

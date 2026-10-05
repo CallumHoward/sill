@@ -3,8 +3,8 @@
   "include": ["**/*.ts"],
   "compilerOptions": {
     // The published CLI supports Node >=20.19; don't type-check against newer lib APIs.
-    "target": "ES2022",
-    "lib": ["ES2022"],
+    "target": "ES2023",
+    "lib": ["ES2023"],
     "types": ["node"]
   }
 }

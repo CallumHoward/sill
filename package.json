@@ -62,7 +62,7 @@
     "@types/picomatch": "^4.0.3",
     "@typescript/native-preview": "7.0.0-dev.20260629.1",
     "@vitest/coverage-v8": "^5.0.1",
-    "@wcmj/config-base": "^0.1.2",
+    "@wcmj/config-base": "^0.1.3",
     "eslint-plugin-check-file": "^3.3.2",
     "fallow": "^3.30.0",
     "lefthook": "^2.1.14",

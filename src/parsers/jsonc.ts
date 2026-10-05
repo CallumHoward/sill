@@ -6,12 +6,7 @@ import {
   printParseErrorCode,
 } from "jsonc-parser";
 
-import {
-  ParseIssue,
-  type ParsedDocument,
-  type ParserAdapter,
-  type Span,
-} from "../types.ts";
+import { ParseIssue, type ParsedDocument, type ParserAdapter, type Span } from "../types.ts";
 import { pointerSegments } from "./pointer.ts";
 
 function nodeSpan(node: Node): Span {

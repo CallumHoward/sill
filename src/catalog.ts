@@ -127,7 +127,9 @@ export function compileCatalog(catalogUrl: string, catalogJson: unknown): Compil
       ? (catalogJson as { schemas?: unknown }).schemas
       : undefined;
   const entries = Array.isArray(schemas)
-    ? schemas.map((entry) => parseEntry(entry)).filter((entry): entry is CatalogEntry => entry !== null)
+    ? schemas
+        .map((entry) => parseEntry(entry))
+        .filter((entry): entry is CatalogEntry => entry !== null)
     : [];
   return new CompiledCatalog(catalogUrl, entries);
 }

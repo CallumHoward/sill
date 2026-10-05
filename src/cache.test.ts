@@ -35,8 +35,8 @@ describe("SchemaCache", () => {
   });
 
   it("fetches on a cold miss and writes an envelope", async () => {
-    const fetchMock = vi.fn<typeof fetch>(
-      async () => new Response('{"a":1}', { status: 200, headers: { etag: '"v1"' } }),
+    const fetchMock = vi.fn<typeof fetch>(() =>
+      Promise.resolve(new Response('{"a":1}', { status: 200, headers: { etag: '"v1"' } })),
     );
     vi.stubGlobal("fetch", fetchMock);
 
@@ -63,7 +63,7 @@ describe("SchemaCache", () => {
   it("serves a fresh envelope without touching the network", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => new Response("first", { status: 200 })),
+      vi.fn<typeof fetch>(() => Promise.resolve(new Response("first", { status: 200 }))),
     );
     await makeCache().fetchText(URL_A);
 
@@ -78,16 +78,16 @@ describe("SchemaCache", () => {
   it("revalidates a stale envelope and refreshes the TTL on 304", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(
-        async () => new Response("first", { status: 200, headers: { etag: '"v1"' } }),
+      vi.fn<typeof fetch>(() =>
+        Promise.resolve(new Response("first", { status: 200, headers: { etag: '"v1"' } })),
       ),
     );
     await makeCache().fetchText(URL_A);
 
     currentTime += 2000; // past ttl
-    const revalidate = vi.fn<typeof fetch>(async (_url, init?: RequestInit) => {
+    const revalidate = vi.fn<typeof fetch>((_url, init?: RequestInit) => {
       expect(new Headers(init?.headers).get("if-none-match")).toBe('"v1"');
-      return new Response(null, { status: 304 });
+      return Promise.resolve(new Response(null, { status: 304 }));
     });
     vi.stubGlobal("fetch", revalidate);
     const result = await makeCache().fetchText(URL_A);
@@ -105,16 +105,14 @@ describe("SchemaCache", () => {
   it("falls back to stale content when the network fails", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => new Response("first", { status: 200 })),
+      vi.fn<typeof fetch>(() => Promise.resolve(new Response("first", { status: 200 }))),
     );
     await makeCache().fetchText(URL_A);
 
     currentTime += 2000;
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => {
-        throw new Error("ECONNREFUSED");
-      }),
+      vi.fn<typeof fetch>(() => Promise.reject(new Error("ECONNREFUSED"))),
     );
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = await makeCache().fetchText(URL_A);
@@ -125,14 +123,14 @@ describe("SchemaCache", () => {
   it("falls back to stale content on a non-ok status", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => new Response("first", { status: 200 })),
+      vi.fn<typeof fetch>(() => Promise.resolve(new Response("first", { status: 200 }))),
     );
     await makeCache().fetchText(URL_A);
 
     currentTime += 2000;
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => new Response("nope", { status: 503 })),
+      vi.fn(() => Promise.resolve(new Response("nope", { status: 503 }))),
     );
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = await makeCache().fetchText(URL_A);
@@ -143,7 +141,7 @@ describe("SchemaCache", () => {
   it("serves stale entries offline without fetching", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => new Response("first", { status: 200 })),
+      vi.fn<typeof fetch>(() => Promise.resolve(new Response("first", { status: 200 }))),
     );
     await makeCache().fetchText(URL_A);
 
@@ -167,9 +165,7 @@ describe("SchemaCache", () => {
   it("propagates cold-miss network failures with the URL", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => {
-        throw new Error("ECONNREFUSED");
-      }),
+      vi.fn<typeof fetch>(() => Promise.reject(new Error("ECONNREFUSED"))),
     );
     await expect(makeCache().fetchText(URL_A)).rejects.toThrow(`failed to fetch ${URL_A}`);
   });
@@ -196,7 +192,7 @@ describe("SchemaCache", () => {
   it("treats a corrupt envelope as a miss", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => new Response("first", { status: 200 })),
+      vi.fn<typeof fetch>(() => Promise.resolve(new Response("first", { status: 200 }))),
     );
     const cache = makeCache();
     await cache.fetchText(URL_A);
@@ -205,7 +201,9 @@ describe("SchemaCache", () => {
     const { writeFile } = await import("node:fs/promises");
     await writeFile(path.join(cacheDir, files[0]!), "not json", "utf8");
 
-    const fetchMock = vi.fn<typeof fetch>(async () => new Response("second", { status: 200 }));
+    const fetchMock = vi.fn<typeof fetch>(() =>
+      Promise.resolve(new Response("second", { status: 200 })),
+    );
     vi.stubGlobal("fetch", fetchMock);
     const result = await makeCache().fetchText(URL_A);
     expect(result).toEqual({ body: "second", fromCache: false, stale: false });
@@ -214,7 +212,7 @@ describe("SchemaCache", () => {
   it("clear() removes the cache directory", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn<typeof fetch>(async () => new Response("first", { status: 200 })),
+      vi.fn<typeof fetch>(() => Promise.resolve(new Response("first", { status: 200 }))),
     );
     const cache = makeCache();
     await cache.fetchText(URL_A);

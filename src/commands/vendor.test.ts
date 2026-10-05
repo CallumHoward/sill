@@ -13,7 +13,7 @@ describe("externalRefs", () => {
       items: [{ $ref: "../up.json#/defs/x" }],
     };
     const refs = externalReferences(schema, "https://example.com/nested/root.json");
-    expect(refs.sort()).toEqual([
+    expect(refs.toSorted()).toEqual([
       "https://example.com/nested/sibling.json",
       "https://example.com/other.json",
       "https://example.com/up.json",

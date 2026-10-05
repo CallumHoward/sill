@@ -46,12 +46,13 @@ export async function discoverFiles(
     matched = await glob(patterns, { cwd: opts.cwd, ignore, dot: true });
     matched = await applyGitignore(matched, opts.cwd);
   }
-  return [...new Set([...literal, ...matched])].sort();
+  return [...new Set([...literal, ...matched])].toSorted();
 }
 
 async function pathKind(path: string): Promise<"dir" | "file" | "none"> {
   try {
-    return (await stat(path)).isDirectory() ? "dir" : "file";
+    const stats = await stat(path);
+    return stats.isDirectory() ? "dir" : "file";
   } catch {
     return "none";
   }

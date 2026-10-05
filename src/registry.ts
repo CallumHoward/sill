@@ -19,18 +19,18 @@ export interface Registry {
   load(uri: string): Promise<AnySchemaObject>;
 }
 
+function resolveRef(ref: string, fromFile: string): string {
+  if (/^https?:\/\//.test(ref)) return ref;
+  if (ref.startsWith("file://")) return ref;
+  const resolved = path.isAbsolute(ref) ? ref : path.resolve(path.dirname(fromFile), ref);
+  return pathToFileURL(resolved).href;
+}
+
 export function createRegistry(opts: {
   cache: SchemaCache;
   vendor?: VendorStore | undefined;
 }): Registry {
   const parsed = new Map<string, Promise<AnySchemaObject>>();
-
-  function resolveRef(ref: string, fromFile: string): string {
-    if (/^https?:\/\//.test(ref)) return ref;
-    if (ref.startsWith("file://")) return ref;
-    const resolved = path.isAbsolute(ref) ? ref : path.resolve(path.dirname(fromFile), ref);
-    return pathToFileURL(resolved).href;
-  }
 
   async function loadNow(uri: string): Promise<AnySchemaObject> {
     if (uri.startsWith("file://")) {
@@ -38,8 +38,8 @@ export function createRegistry(opts: {
       return JSON.parse(text) as AnySchemaObject;
     }
     const vendored = opts.vendor?.manifest[uri];
-    if (vendored !== undefined) {
-      const text = await readFile(path.join(opts.vendor!.dir, vendored), "utf8");
+    if (opts.vendor !== undefined && vendored !== undefined) {
+      const text = await readFile(path.join(opts.vendor.dir, vendored), "utf8");
       return JSON.parse(text) as AnySchemaObject;
     }
     const response = await opts.cache.fetchText(uri);

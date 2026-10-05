@@ -1,11 +1,6 @@
 import { isMap, isSeq, type Node as YamlNode, parseAllDocuments } from "yaml";
 
-import {
-  ParseIssue,
-  type ParsedDocument,
-  type ParserAdapter,
-  type Span,
-} from "../types.ts";
+import { ParseIssue, type ParsedDocument, type ParserAdapter, type Span } from "../types.ts";
 import { leadingCommentRef } from "./leading-comment.ts";
 import { pointerSegments } from "./pointer.ts";
 

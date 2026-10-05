@@ -52,8 +52,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(vitest@5.0.1)
       '@wcmj/config-base':
-        specifier: ^0.1.2
-        version: 0.1.2(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(typescript@6.0.3))(typescript@6.0.3)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)
+        specifier: ^0.1.3
+        version: 0.1.3(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(typescript@6.0.3))(typescript@6.0.3)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)
       eslint-plugin-check-file:
         specifier: ^3.3.2
         version: 3.3.2(eslint@10.6.0)
@@ -1083,12 +1083,12 @@ packages:
   '@vitest/spy@5.0.1':
     resolution: {integrity: sha512-rbto/mF/SGERxEgYOek7Xm6B9b+y+mVoo+f4b2LymYO8zM1b7uB5nHuhVMTP2hxdzgxvGiZYGxGIaMvL5y180Q==}
 
-  '@wcmj/config-base@0.1.2':
-    resolution: {integrity: sha512-aa4zq6ZzwAlpgxArTCFplw1CuwbOLCgA29sJn9s5B1LoMNj48xP90KIzEHu3KCFj7ZOybWSwD4cH/MeXaY+Qig==}
+  '@wcmj/config-base@0.1.3':
+    resolution: {integrity: sha512-hOhrPZ+nKojyBPSpZVgRXQagkPsdnlsg/DVfYfU0aBhUButvCkaBNJeNB6owDtTOm/T1WRDN7eySE3d8as/F4g==}
     peerDependencies:
-      fallow: ^2.89.0
+      fallow: ^2.89.0 || ^3.0.0
       lefthook: ^2.1.9
-      oxfmt: ^0.58.0
+      oxfmt: '>=0.58.0 <1.0.0'
       oxlint: ^1.79.0
       oxlint-tsgolint: ^7.0.2001
       stylelint: ^17.14.0
@@ -3191,7 +3191,7 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@wcmj/config-base@0.1.2(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(typescript@6.0.3))(typescript@6.0.3)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)':
+  '@wcmj/config-base@0.1.3(@typescript-eslint/parser@8.70.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(fallow@3.30.0)(lefthook@2.1.14)(oxfmt@0.58.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.85.0(oxlint-tsgolint@7.0.2003))(stylelint@17.15.0(typescript@6.0.3))(typescript@6.0.3)(vite@8.1.0(@types/node@24.19.0)(yaml@2.9.1))(vitest@5.0.1)':
     dependencies:
       '@csstools/stylelint-formatter-github': 2.0.0(stylelint@17.15.0(typescript@6.0.3))
       '@double-great/stylelint-a11y': 3.5.4(stylelint@17.15.0(typescript@6.0.3))

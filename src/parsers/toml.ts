@@ -1,11 +1,6 @@
 import { type AST, getStaticTOMLValue, ParseError, parseTOML } from "toml-eslint-parser";
 
-import {
-  ParseIssue,
-  type ParsedDocument,
-  type ParserAdapter,
-  type Span,
-} from "../types.ts";
+import { ParseIssue, type ParsedDocument, type ParserAdapter, type Span } from "../types.ts";
 import { leadingCommentRef } from "./leading-comment.ts";
 import { pointerSegments } from "./pointer.ts";
 
@@ -34,9 +29,9 @@ function buildIndex(top: AST.TOMLTopLevelTable): Map<string, Span> {
   const visitContent = (path: string[], node: AST.TOMLContentNode): void => {
     setIfAbsent(path, rangeSpan(node));
     if (node.type === "TOMLArray") {
-      node.elements.forEach((element, i) => {
-        visitContent([...path, String(i)], element);
-      });
+      for (const [index, element] of node.elements.entries()) {
+        visitContent([...path, String(index)], element);
+      }
     } else if (node.type === "TOMLInlineTable") {
       for (const kv of node.body) visitKeyValue(path, kv);
     }
@@ -46,7 +41,8 @@ function buildIndex(top: AST.TOMLTopLevelTable): Map<string, Span> {
     const segments = kv.key.keys.map(keyName);
     // Dotted keys create implicit tables; point intermediate paths at the key.
     for (let i = 1; i < segments.length; i++) {
-      setIfAbsent([...parent, ...segments.slice(0, i)], rangeSpan(kv.key.keys[i - 1]!));
+      const keyNode = kv.key.keys[i - 1];
+      if (keyNode) setIfAbsent([...parent, ...segments.slice(0, i)], rangeSpan(keyNode));
     }
     visitContent([...parent, ...segments], kv.value);
   };

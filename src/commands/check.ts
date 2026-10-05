@@ -14,12 +14,7 @@ import { createEngine } from "../engine.ts";
 import { adapterForPath } from "../parsers/index.ts";
 import { createRegistry, type Registry } from "../registry.ts";
 import { getReporter, resolveReporterName, type Summary } from "../reporters/index.ts";
-import {
-  type Association,
-  type Diagnostic,
-  ParseIssue,
-  type ParsedDocument,
-} from "../types.ts";
+import { type Association, type Diagnostic, ParseIssue, type ParsedDocument } from "../types.ts";
 import { defaultCacheDirectory } from "../util/cache-dir.ts";
 import { parseDuration } from "../util/duration.ts";
 import { Semaphore } from "../util/semaphore.ts";
