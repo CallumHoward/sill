@@ -121,8 +121,8 @@ export class SchemaCache {
   async #write(envelope: Envelope): Promise<void> {
     await mkdir(this.#opts.cacheDir, { recursive: true });
     const path = this.#path(envelope.url);
-    const temporary = `${path}.tmp-${crypto.randomUUID()}`;
-    await writeFile(temporary, JSON.stringify(envelope), "utf8");
-    await rename(temporary, path);
+    const tmp = `${path}.tmp-${crypto.randomUUID()}`;
+    await writeFile(tmp, JSON.stringify(envelope), "utf8");
+    await rename(tmp, path);
   }
 }

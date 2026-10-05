@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 
 /** Per-OS default schema-cache directory, overridable via $SILL_CACHE_DIR. */
-export function defaultCacheDirectory(): string {
+export function defaultCacheDir(): string {
   const override = process.env["SILL_CACHE_DIR"];
   if (override) return override;
   if (process.platform === "darwin") return path.join(homedir(), "Library", "Caches", "sill");

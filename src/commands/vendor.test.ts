@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { externalRefs as externalReferences, filenameFor } from "./vendor.ts";
+import { externalRefs, filenameFor } from "./vendor.ts";
 
 describe("externalRefs", () => {
   it("collects absolute refs and resolves relative ones against the base", () => {
@@ -12,7 +12,7 @@ describe("externalRefs", () => {
       },
       items: [{ $ref: "../up.json#/defs/x" }],
     };
-    const refs = externalReferences(schema, "https://example.com/nested/root.json");
+    const refs = externalRefs(schema, "https://example.com/nested/root.json");
     expect(refs.toSorted()).toEqual([
       "https://example.com/nested/sibling.json",
       "https://example.com/other.json",
@@ -26,14 +26,14 @@ describe("externalRefs", () => {
       b: { $ref: "https://example.com/s.json#/b" },
       self: { $ref: "https://example.com/root.json#/x" },
     };
-    expect(externalReferences(schema, "https://example.com/root.json")).toEqual([
+    expect(externalRefs(schema, "https://example.com/root.json")).toEqual([
       "https://example.com/s.json",
     ]);
   });
 
   it("ignores non-http refs and unresolvable values", () => {
     const schema = { a: { $ref: "ftp://example.com/x" }, b: { $ref: "" } };
-    expect(externalReferences(schema, "https://example.com/root.json")).toEqual([]);
+    expect(externalRefs(schema, "https://example.com/root.json")).toEqual([]);
   });
 });
 

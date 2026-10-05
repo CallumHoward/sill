@@ -11,8 +11,8 @@ const SAMPLE = `{
 
 describe("json5Adapter", () => {
   it("parses JSON5 syntax", () => {
-    const document = json5Adapter.parse(SAMPLE)[0]!;
-    expect(document.value).toEqual({
+    const doc = json5Adapter.parse(SAMPLE)[0]!;
+    expect(doc.value).toEqual({
       $schema: "https://example.com/schema.json",
       items: [1, 2, { name: "x" }],
     });
@@ -29,14 +29,14 @@ describe("json5Adapter", () => {
   });
 
   it("locates nested keys and array indices", () => {
-    const document = json5Adapter.parse(SAMPLE)[0]!;
-    const name = document.locate("/items/2/name");
+    const doc = json5Adapter.parse(SAMPLE)[0]!;
+    const name = doc.locate("/items/2/name");
     expect(SAMPLE.slice(name!.offset, name!.offset + name!.length)).toBe("'x'");
-    expect(document.locate("/missing")).toBeNull();
+    expect(doc.locate("/missing")).toBeNull();
   });
 
   it("locates the root", () => {
-    const document = json5Adapter.parse(`[1]`)[0]!;
-    expect(document.locate("")).toEqual({ offset: 0, length: 3 });
+    const doc = json5Adapter.parse(`[1]`)[0]!;
+    expect(doc.locate("")).toEqual({ offset: 0, length: 3 });
   });
 });

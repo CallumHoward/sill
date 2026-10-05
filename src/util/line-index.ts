@@ -29,8 +29,8 @@ export class LineIndex {
   #starts(): number[] {
     if (this.#lineStarts) return this.#lineStarts;
     const starts = [0];
-    for (let index = 0; index < this.#text.length; index += 1) {
-      if (this.#text[index] === "\n") starts.push(index + 1);
+    for (let i = 0; i < this.#text.length; i += 1) {
+      if (this.#text[i] === "\n") starts.push(i + 1);
     }
     this.#lineStarts = starts;
     return starts;

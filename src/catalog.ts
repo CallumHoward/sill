@@ -41,7 +41,7 @@ export class CompiledCatalog {
   readonly catalogUrl: string;
   /** Literal basename patterns (no "/"), matched at any depth. */
   readonly #byBasename = new Map<string, Candidate>();
-  /** Literal path patterns (with "/"), matched against the full relativePath. */
+  /** Literal path patterns (with "/"), matched against the full relPath. */
   readonly #byPath = new Map<string, Candidate>();
   /** Bare-extension patterns (optionally `**`-prefixed), bucketed by final extension. */
   readonly #byExtension = new Map<string, ExtensionCandidate[]>();
@@ -58,10 +58,10 @@ export class CompiledCatalog {
   }
 
   // fallow-ignore-next-line complexity
-  match(relativePath: string): CatalogMatch | null {
-    const basename = relativePath.slice(relativePath.lastIndexOf("/") + 1);
+  match(relPath: string): CatalogMatch | null {
+    const basename = relPath.slice(relPath.lastIndexOf("/") + 1);
     let best = better(null, this.#byBasename.get(basename));
-    best = better(best, this.#byPath.get(relativePath));
+    best = better(best, this.#byPath.get(relPath));
 
     const dot = basename.lastIndexOf(".");
     if (dot !== -1) {
@@ -73,7 +73,7 @@ export class CompiledCatalog {
     for (const candidate of this.#globs) {
       // Sorted by index; nothing later can beat the current best.
       if (best !== null && candidate.index >= best.index) break;
-      if (candidate.isMatch(relativePath)) best = better(best, candidate);
+      if (candidate.isMatch(relPath)) best = better(best, candidate);
     }
 
     return best === null

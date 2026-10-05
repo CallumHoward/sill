@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest";
 
 import { createAssociator } from "./associate.ts";
 import type { CompiledCatalog } from "./catalog.ts";
-import type { ParsedDocument } from "./types.ts";
+import type { ParsedDoc } from "./types.ts";
 
-function doc(schemaRef: string | null = null): ParsedDocument {
+function doc(schemaRef: string | null = null): ParsedDoc {
   return { value: {}, schemaRef, locate: () => null };
 }
 
 function fakeCatalog(url: string, matches: Record<string, string>): CompiledCatalog {
   return {
     catalogUrl: url,
-    match: (relativePath: string) => {
-      const schemaUri = matches[relativePath];
-      return schemaUri === undefined ? null : { schemaUri, pattern: relativePath, catalogUrl: url };
+    match: (relPath: string) => {
+      const schemaUri = matches[relPath];
+      return schemaUri === undefined ? null : { schemaUri, pattern: relPath, catalogUrl: url };
     },
   } as unknown as CompiledCatalog;
 }

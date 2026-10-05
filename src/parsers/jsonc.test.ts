@@ -14,16 +14,16 @@ const TSCONFIG_STYLE = `{
 
 describe("jsoncAdapter", () => {
   it("parses JSON with comments and trailing commas", () => {
-    const document = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
-    expect(document.value).toEqual({
+    const doc = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
+    expect(doc.value).toEqual({
       $schema: "https://json.schemastore.org/tsconfig",
       compilerOptions: { strict: true, lib: ["ES2022", "DOM"] },
     });
   });
 
   it("extracts a top-level $schema reference", () => {
-    const document = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
-    expect(document.schemaRef).toBe("https://json.schemastore.org/tsconfig");
+    const doc = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
+    expect(doc.schemaRef).toBe("https://json.schemastore.org/tsconfig");
   });
 
   it("returns null schemaRef when $schema is absent or not a string", () => {
@@ -37,28 +37,28 @@ describe("jsoncAdapter", () => {
   });
 
   it("locates the root, nested keys, and array indices", () => {
-    const document = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
-    expect(document.locate("")).toEqual({ offset: 0, length: TSCONFIG_STYLE.length });
+    const doc = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
+    expect(doc.locate("")).toEqual({ offset: 0, length: TSCONFIG_STYLE.length });
 
-    const strict = document.locate("/compilerOptions/strict");
+    const strict = doc.locate("/compilerOptions/strict");
     expect(strict).not.toBeNull();
     expect(TSCONFIG_STYLE.slice(strict!.offset, strict!.offset + strict!.length)).toBe("true");
 
-    const dom = document.locate("/compilerOptions/lib/1");
+    const dom = doc.locate("/compilerOptions/lib/1");
     expect(TSCONFIG_STYLE.slice(dom!.offset, dom!.offset + dom!.length)).toBe(`"DOM"`);
   });
 
   it("unescapes ~0 and ~1 pointer segments", () => {
     const text = `{"a/b": {"c~d": 7}}`;
-    const document = jsoncAdapter.parse(text)[0]!;
-    const span = document.locate("/a~1b/c~0d");
+    const doc = jsoncAdapter.parse(text)[0]!;
+    const span = doc.locate("/a~1b/c~0d");
     expect(text.slice(span!.offset, span!.offset + span!.length)).toBe("7");
   });
 
   it("returns null for missing paths", () => {
-    const document = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
-    expect(document.locate("/nope")).toBeNull();
-    expect(document.locate("/compilerOptions/lib/9")).toBeNull();
-    expect(document.locate("/compilerOptions/lib/x")).toBeNull();
+    const doc = jsoncAdapter.parse(TSCONFIG_STYLE)[0]!;
+    expect(doc.locate("/nope")).toBeNull();
+    expect(doc.locate("/compilerOptions/lib/9")).toBeNull();
+    expect(doc.locate("/compilerOptions/lib/x")).toBeNull();
   });
 });

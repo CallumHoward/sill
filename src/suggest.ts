@@ -1,34 +1,30 @@
 /** Levenshtein edit distance (two-row DP). */
 export function levenshtein(a: string, b: string): number {
   if (a === b) return 0;
-  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
-  let current = Array.from({ length: b.length + 1 }, () => 0);
-  for (let row = 1; row <= a.length; row++) {
-    current[0] = row;
-    for (let column = 1; column <= b.length; column++) {
-      const cost = a[row - 1] === b[column - 1] ? 0 : 1;
-      current[column] = Math.min(
-        (previous[column] ?? 0) + 1,
-        (current[column - 1] ?? 0) + 1,
-        (previous[column - 1] ?? 0) + cost,
-      );
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  let curr = Array.from({ length: b.length + 1 }, () => 0);
+  for (let i = 1; i <= a.length; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min((prev[j] ?? 0) + 1, (curr[j - 1] ?? 0) + 1, (prev[j - 1] ?? 0) + cost);
     }
-    [previous, current] = [current, previous];
+    [prev, curr] = [curr, prev];
   }
-  return previous[b.length] ?? 0;
+  return prev[b.length] ?? 0;
 }
 
 /** Closest candidate within an edit-distance budget, or undefined. */
 export function didYouMean(input: string, candidates: Iterable<string>): string | undefined {
   const lower = input.toLowerCase();
   let best: string | undefined;
-  let bestDistance = Number.POSITIVE_INFINITY;
+  let bestDist = Number.POSITIVE_INFINITY;
   for (const candidate of candidates) {
-    const distance = levenshtein(lower, candidate.toLowerCase());
-    const budget = distance <= 3 && distance * 2 <= Math.max(input.length, candidate.length);
-    if (budget && distance < bestDistance) {
+    const dist = levenshtein(lower, candidate.toLowerCase());
+    const budget = dist <= 3 && dist * 2 <= Math.max(input.length, candidate.length);
+    if (budget && dist < bestDist) {
       best = candidate;
-      bestDistance = distance;
+      bestDist = dist;
     }
   }
   return best;
@@ -45,17 +41,17 @@ export function propertyCandidates(schema: unknown, rootSchema: unknown): string
   const visit = (node: unknown, depth: number): void => {
     if (depth > 8 || node === null || typeof node !== "object" || visited.has(node)) return;
     visited.add(node);
-    const object = node as Record<string, unknown>;
-    if (object["properties"] !== null && typeof object["properties"] === "object") {
-      for (const key of Object.keys(object["properties"])) found.add(key);
+    const obj = node as Record<string, unknown>;
+    if (obj["properties"] !== null && typeof obj["properties"] === "object") {
+      for (const key of Object.keys(obj["properties"])) found.add(key);
     }
-    if (Array.isArray(object["allOf"])) {
-      for (const sub of object["allOf"]) visit(sub, depth + 1);
+    if (Array.isArray(obj["allOf"])) {
+      for (const sub of obj["allOf"]) visit(sub, depth + 1);
     }
-    if (typeof object["$ref"] === "string") {
-      if (object["$ref"] === "#") visit(rootSchema, depth + 1);
-      else if (object["$ref"].startsWith("#/")) {
-        visit(resolveLocalPointer(rootSchema, object["$ref"].slice(1)), depth + 1);
+    if (typeof obj["$ref"] === "string") {
+      if (obj["$ref"] === "#") visit(rootSchema, depth + 1);
+      else if (obj["$ref"].startsWith("#/")) {
+        visit(resolveLocalPointer(rootSchema, obj["$ref"].slice(1)), depth + 1);
       }
     }
   };

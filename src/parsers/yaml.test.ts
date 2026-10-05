@@ -24,15 +24,15 @@ items:
 
 describe("yamlAdapter", () => {
   it("parses YAML 1.2 so `on:` stays a string key", () => {
-    const document = yamlAdapter.parse(WORKFLOW)[0]!;
-    const value = document.value as Record<string, unknown>;
+    const doc = yamlAdapter.parse(WORKFLOW)[0]!;
+    const value = doc.value as Record<string, unknown>;
     expect(Object.keys(value)).toContain("on");
     expect(value["name"]).toBe("CI");
   });
 
   it("extracts the yaml-language-server modeline", () => {
-    const document = yamlAdapter.parse(WORKFLOW)[0]!;
-    expect(document.schemaRef).toBe("https://json.schemastore.org/github-workflow.json");
+    const doc = yamlAdapter.parse(WORKFLOW)[0]!;
+    expect(doc.schemaRef).toBe("https://json.schemastore.org/github-workflow.json");
   });
 
   it("prefers the modeline over a top-level $schema key", () => {
@@ -51,7 +51,7 @@ describe("yamlAdapter", () => {
     expect(yamlAdapter.parse(text)[0]!.schemaRef).toBeNull();
   });
 
-  it("yields one ParsedDocument per document with working locate", () => {
+  it("yields one ParsedDoc per document with working locate", () => {
     const docs = yamlAdapter.parse(MULTI_DOC);
     expect(docs).toHaveLength(2);
     expect(docs[0]!.value).toEqual({ name: "first" });
@@ -61,14 +61,14 @@ describe("yamlAdapter", () => {
   });
 
   it("locates nested keys and array indices", () => {
-    const document = yamlAdapter.parse(WORKFLOW)[0]!;
-    const runsOn = document.locate("/jobs/validate/runs-on");
+    const doc = yamlAdapter.parse(WORKFLOW)[0]!;
+    const runsOn = doc.locate("/jobs/validate/runs-on");
     expect(WORKFLOW.slice(runsOn!.offset, runsOn!.offset + runsOn!.length)).toBe("ubuntu-latest");
 
-    const branch = document.locate("/on/push/branches/0");
+    const branch = doc.locate("/on/push/branches/0");
     expect(WORKFLOW.slice(branch!.offset, branch!.offset + branch!.length)).toBe("main");
 
-    expect(document.locate("/jobs/missing")).toBeNull();
+    expect(doc.locate("/jobs/missing")).toBeNull();
   });
 
   it("throws ParseIssue on malformed YAML", () => {

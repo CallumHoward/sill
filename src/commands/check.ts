@@ -14,8 +14,8 @@ import { createEngine } from "../engine.ts";
 import { adapterForPath } from "../parsers/index.ts";
 import { createRegistry, type Registry } from "../registry.ts";
 import { getReporter, resolveReporterName, type Summary } from "../reporters/index.ts";
-import { type Association, type Diagnostic, ParseIssue, type ParsedDocument } from "../types.ts";
-import { defaultCacheDirectory } from "../util/cache-dir.ts";
+import { type Association, type Diagnostic, ParseIssue, type ParsedDoc } from "../types.ts";
+import { defaultCacheDir } from "../util/cache-dir.ts";
 import { parseDuration } from "../util/duration.ts";
 import { Semaphore } from "../util/semaphore.ts";
 
@@ -24,14 +24,14 @@ const DEFAULT_TTL_MS = 12 * 3_600_000;
 
 interface Target {
   file: string;
-  doc: ParsedDocument;
+  doc: ParsedDoc;
   association: Association;
   schemaUri: string;
 }
 
 interface ParsedFile {
   file: string;
-  docs: ParsedDocument[];
+  docs: ParsedDoc[];
 }
 
 /** Mutable result accumulators shared across the check phases. */
@@ -48,7 +48,7 @@ export async function runCheck(args: string[], options: CliOptions): Promise<num
   const loaded = await loadConfig(cwd, options.config);
 
   const cache = new SchemaCache({
-    cacheDir: options.cacheDir ?? defaultCacheDirectory(),
+    cacheDir: options.cacheDir ?? defaultCacheDir(),
     ttlMs: options.ttl === undefined ? DEFAULT_TTL_MS : parseDuration(options.ttl),
     offline: options.offline,
     concurrency: options.concurrency,
@@ -150,8 +150,8 @@ function groupBySchema(
   for (const parsed of parsedFiles) {
     if (!parsed) continue;
     let associated = false;
-    for (const document of parsed.docs) {
-      const association = deps.associator.associate(parsed.file, document);
+    for (const doc of parsed.docs) {
+      const association = deps.associator.associate(parsed.file, doc);
       if (!association) continue;
       associated = true;
       const schemaUri = resolveAssociation(
@@ -161,7 +161,7 @@ function groupBySchema(
         deps.registry,
         deps.cwd,
       );
-      const target: Target = { file: parsed.file, doc: document, association, schemaUri };
+      const target: Target = { file: parsed.file, doc: doc, association, schemaUri };
       const group = groups.get(schemaUri);
       if (group) group.push(target);
       else groups.set(schemaUri, [target]);
@@ -253,7 +253,7 @@ function resolveAssociation(
 
 /** Fetch and compile catalogs only when some file actually needs them. */
 async function buildAssociator(
-  parsedFiles: ({ file: string; docs: ParsedDocument[] } | null)[],
+  parsedFiles: ({ file: string; docs: ParsedDoc[] } | null)[],
   loaded: LoadedConfig | null,
   cache: SchemaCache,
   options: CliOptions,
@@ -264,7 +264,7 @@ async function buildAssociator(
   const catalogEnabled = options.catalog && (loaded?.config.catalog ?? true);
   if (!catalogEnabled) return withoutCatalogs;
   const anyUnmatched = parsedFiles.some(
-    (p) => p && p.docs.some((document) => withoutCatalogs.associate(p.file, document) === null),
+    (p) => p && p.docs.some((doc) => withoutCatalogs.associate(p.file, doc) === null),
   );
   if (!anyUnmatched) return withoutCatalogs;
 

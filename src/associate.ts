@@ -2,14 +2,14 @@ import picomatch from "picomatch";
 
 import type { CompiledCatalog } from "./catalog.ts";
 import type { SchemaMapping } from "./config.ts";
-import type { Association, ParsedDocument } from "./types.ts";
+import type { Association, ParsedDoc } from "./types.ts";
 
 export interface Associator {
   /**
    * Resolve a document's schema association. Precedence: inline reference → config mappings
    * (ordered, first match wins) → catalogs (in order).
    */
-  associate(relativePath: string, doc: ParsedDocument): Association | null;
+  associate(relPath: string, doc: ParsedDoc): Association | null;
 }
 
 interface CompiledMapping {
@@ -33,12 +33,12 @@ export function createAssociator(opts: {
   const compiled = opts.mappings.flatMap(compileMapping);
 
   return {
-    associate(relativePath, document) {
-      if (document.schemaRef !== null) {
-        return { schemaUri: document.schemaRef, source: { kind: "inline" } };
+    associate(relPath, doc) {
+      if (doc.schemaRef !== null) {
+        return { schemaUri: doc.schemaRef, source: { kind: "inline" } };
       }
       for (const mapping of compiled) {
-        if (mapping.isMatch(relativePath)) {
+        if (mapping.isMatch(relPath)) {
           return {
             schemaUri: mapping.schema,
             source: { kind: "config", pattern: mapping.pattern },
@@ -46,7 +46,7 @@ export function createAssociator(opts: {
         }
       }
       for (const catalog of opts.catalogs) {
-        const match = catalog.match(relativePath);
+        const match = catalog.match(relPath);
         if (match) {
           return {
             schemaUri: match.schemaUri,

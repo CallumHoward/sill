@@ -20,8 +20,8 @@ name = "two"
 
 describe("tomlAdapter", () => {
   it("parses tables, dotted keys, inline tables, and arrays of tables", () => {
-    const document = tomlAdapter.parse(SAMPLE)[0]!;
-    expect(document.value).toEqual({
+    const doc = tomlAdapter.parse(SAMPLE)[0]!;
+    expect(doc.value).toEqual({
       package: { name: "demo", edition: { workspace: true } },
       dependencies: { serde: { version: "1", features: ["derive"] } },
       bin: [{ name: "one" }, { name: "two" }],
@@ -40,30 +40,30 @@ describe("tomlAdapter", () => {
   });
 
   it("locates values through tables and dotted keys", () => {
-    const document = tomlAdapter.parse(SAMPLE)[0]!;
+    const doc = tomlAdapter.parse(SAMPLE)[0]!;
 
-    const name = document.locate("/package/name");
+    const name = doc.locate("/package/name");
     expect(SAMPLE.slice(name!.offset, name!.offset + name!.length)).toBe(`"demo"`);
 
-    const workspace = document.locate("/package/edition/workspace");
+    const workspace = doc.locate("/package/edition/workspace");
     expect(SAMPLE.slice(workspace!.offset, workspace!.offset + workspace!.length)).toBe("true");
 
-    const feature = document.locate("/dependencies/serde/features/0");
+    const feature = doc.locate("/dependencies/serde/features/0");
     expect(SAMPLE.slice(feature!.offset, feature!.offset + feature!.length)).toBe(`"derive"`);
   });
 
   it("locates arrays of tables by index", () => {
-    const document = tomlAdapter.parse(SAMPLE)[0]!;
-    const second = document.locate("/bin/1/name");
+    const doc = tomlAdapter.parse(SAMPLE)[0]!;
+    const second = doc.locate("/bin/1/name");
     const text = SAMPLE.slice(second!.offset, second!.offset + second!.length);
     expect(text).toBe(`"two"`);
-    expect(document.locate("/bin/2/name")).toBeNull();
+    expect(doc.locate("/bin/2/name")).toBeNull();
   });
 
   it("locates the root and returns null for missing paths", () => {
-    const document = tomlAdapter.parse(SAMPLE)[0]!;
-    expect(document.locate("")).not.toBeNull();
-    expect(document.locate("/missing/deep")).toBeNull();
+    const doc = tomlAdapter.parse(SAMPLE)[0]!;
+    expect(doc.locate("")).not.toBeNull();
+    expect(doc.locate("/missing/deep")).toBeNull();
   });
 
   it("throws ParseIssue on malformed TOML", () => {

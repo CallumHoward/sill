@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import type { ConvertContext } from "./diagnostics.ts";
 import { convertErrors } from "./diagnostics.ts";
-import type { ParsedDocument, Span } from "./types.ts";
+import type { ParsedDoc, Span } from "./types.ts";
 
 function errorsFor(schema: object, instance: unknown): ErrorObject[] {
   const ajv = new Ajv({ allErrors: true, strict: false });
@@ -13,7 +13,7 @@ function errorsFor(schema: object, instance: unknown): ErrorObject[] {
   return validate.errors ?? [];
 }
 
-function stubDoc(value: unknown, spans: Record<string, Span> = {}): ParsedDocument {
+function stubDoc(value: unknown, spans: Record<string, Span> = {}): ParsedDoc {
   return {
     value,
     schemaRef: null,
@@ -136,7 +136,7 @@ describe("convertErrors", () => {
   });
 
   it("truncates long enum lists", () => {
-    const allowed = Array.from({ length: 10 }, (_, index) => `v${index}`);
+    const allowed = Array.from({ length: 10 }, (_, i) => `v${i}`);
     const schema = { type: "object", properties: { x: { enum: allowed } } };
     const instance = { x: "nope-not-close" };
     const out = convertErrors(errorsFor(schema, instance), context(schema, instance));

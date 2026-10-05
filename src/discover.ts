@@ -33,11 +33,11 @@ export async function discoverFiles(
   const patterns: string[] = [];
   const literal: string[] = [];
 
-  for (const argument of args) {
-    const kind = await pathKind(path.join(opts.cwd, argument));
-    if (kind === "dir") patterns.push(`${argument.replace(/\/+$/, "")}/**/*.${EXTENSIONS}`);
-    else if (kind === "file") literal.push(argument.replaceAll("\\", "/"));
-    else patterns.push(argument);
+  for (const arg of args) {
+    const kind = await pathKind(path.join(opts.cwd, arg));
+    if (kind === "dir") patterns.push(`${arg.replace(/\/+$/, "")}/**/*.${EXTENSIONS}`);
+    else if (kind === "file") literal.push(arg.replaceAll("\\", "/"));
+    else patterns.push(arg);
   }
   if (args.length === 0) patterns.push(`**/*.${EXTENSIONS}`);
 

@@ -90,7 +90,7 @@ async function fetchSchema(url: string): Promise<unknown> {
 
 /** Collect absolute forms of every external (non-fragment) $ref in a schema. */
 export function externalRefs(schema: unknown, baseUrl: string): string[] {
-  const references = new Set<string>();
+  const refs = new Set<string>();
   // fallow-ignore-next-line complexity
   const walk = (node: unknown): void => {
     if (Array.isArray(node)) {
@@ -103,7 +103,7 @@ export function externalRefs(schema: unknown, baseUrl: string): string[] {
         try {
           const abs = new URL(value, baseUrl);
           abs.hash = "";
-          if (abs.protocol === "http:" || abs.protocol === "https:") references.add(abs.href);
+          if (abs.protocol === "http:" || abs.protocol === "https:") refs.add(abs.href);
         } catch {
           // Unresolvable ref — leave it for validation-time errors.
         }
@@ -113,8 +113,8 @@ export function externalRefs(schema: unknown, baseUrl: string): string[] {
     }
   };
   walk(schema);
-  references.delete(baseUrl);
-  return [...references];
+  refs.delete(baseUrl);
+  return [...refs];
 }
 
 /** Derive a unique, filesystem-safe filename for a schema URL. */
