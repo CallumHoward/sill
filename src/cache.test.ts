@@ -1,6 +1,6 @@
 import { mkdtemp, readdir, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,7 +17,7 @@ describe("SchemaCache", () => {
   const makeCache = (overrides: Partial<SchemaCacheOptions> = {}) =>
     new SchemaCache({
       cacheDir,
-      ttlMs: 1_000,
+      ttlMs: 1000,
       offline: false,
       concurrency: 4,
       userAgent: "sill-test",
@@ -26,7 +26,7 @@ describe("SchemaCache", () => {
     });
 
   beforeEach(async () => {
-    cacheDir = await mkdtemp(join(tmpdir(), "sill-cache-"));
+    cacheDir = await mkdtemp(path.join(tmpdir(), "sill-cache-"));
     currentTime = 1_000_000;
   });
 
@@ -46,7 +46,7 @@ describe("SchemaCache", () => {
 
     const files = await readdir(cacheDir);
     expect(files).toHaveLength(1);
-    const envelope = JSON.parse(await readFile(join(cacheDir, files[0]!), "utf8")) as {
+    const envelope = JSON.parse(await readFile(path.join(cacheDir, files[0]!), "utf8")) as {
       url: string;
       etag: string;
       fetchedAt: number;
@@ -84,7 +84,7 @@ describe("SchemaCache", () => {
     );
     await makeCache().fetchText(URL_A);
 
-    currentTime += 2_000; // past ttl
+    currentTime += 2000; // past ttl
     const revalidate = vi.fn<typeof fetch>(async (_url, init?: RequestInit) => {
       expect(new Headers(init?.headers).get("if-none-match")).toBe('"v1"');
       return new Response(null, { status: 304 });
@@ -109,7 +109,7 @@ describe("SchemaCache", () => {
     );
     await makeCache().fetchText(URL_A);
 
-    currentTime += 2_000;
+    currentTime += 2000;
     vi.stubGlobal(
       "fetch",
       vi.fn<typeof fetch>(async () => {
@@ -129,7 +129,7 @@ describe("SchemaCache", () => {
     );
     await makeCache().fetchText(URL_A);
 
-    currentTime += 2_000;
+    currentTime += 2000;
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => new Response("nope", { status: 503 })),
@@ -147,7 +147,7 @@ describe("SchemaCache", () => {
     );
     await makeCache().fetchText(URL_A);
 
-    currentTime += 2_000;
+    currentTime += 2000;
     const fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", fetchMock);
     const result = await makeCache({ offline: true }).fetchText(URL_A);
@@ -203,7 +203,7 @@ describe("SchemaCache", () => {
 
     const files = await readdir(cacheDir);
     const { writeFile } = await import("node:fs/promises");
-    await writeFile(join(cacheDir, files[0]!), "not json", "utf8");
+    await writeFile(path.join(cacheDir, files[0]!), "not json", "utf8");
 
     const fetchMock = vi.fn<typeof fetch>(async () => new Response("second", { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);

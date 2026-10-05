@@ -6,7 +6,12 @@ import {
   printParseErrorCode,
 } from "jsonc-parser";
 
-import { ParseIssue, type ParsedDoc, type ParserAdapter, type Span } from "../types.ts";
+import {
+  ParseIssue,
+  type ParsedDocument,
+  type ParserAdapter,
+  type Span,
+} from "../types.ts";
 import { pointerSegments } from "./pointer.ts";
 
 function nodeSpan(node: Node): Span {
@@ -39,7 +44,7 @@ function schemaRefOf(root: Node | undefined): string | null {
 export const jsoncAdapter: ParserAdapter = {
   format: "json",
   extensions: [".json", ".jsonc"],
-  parse(text: string): ParsedDoc[] {
+  parse(text: string): ParsedDocument[] {
     const errors: ParseError[] = [];
     const root = parseTree(text, errors, { allowTrailingComma: true, allowEmptyContent: true });
     const first = errors[0];

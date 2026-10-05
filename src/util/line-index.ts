@@ -20,17 +20,17 @@ export class LineIndex {
     let hi = starts.length - 1;
     while (lo < hi) {
       const mid = Math.ceil((lo + hi) / 2);
-      if (starts[mid]! <= clamped) lo = mid;
+      if ((starts[mid] ?? 0) <= clamped) lo = mid;
       else hi = mid - 1;
     }
-    return { line: lo + 1, column: clamped - starts[lo]! + 1 };
+    return { line: lo + 1, column: clamped - (starts[lo] ?? 0) + 1 };
   }
 
   #starts(): number[] {
     if (this.#lineStarts) return this.#lineStarts;
     const starts = [0];
-    for (let i = 0; i < this.#text.length; i += 1) {
-      if (this.#text[i] === "\n") starts.push(i + 1);
+    for (let index = 0; index < this.#text.length; index += 1) {
+      if (this.#text[index] === "\n") starts.push(index + 1);
     }
     this.#lineStarts = starts;
     return starts;

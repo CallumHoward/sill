@@ -1,5 +1,5 @@
 import { readFile, stat } from "node:fs/promises";
-import { join } from "node:path";
+import path from "node:path";
 
 import ignoreFactory from "ignore";
 import { glob } from "tinyglobby";
@@ -33,11 +33,11 @@ export async function discoverFiles(
   const patterns: string[] = [];
   const literal: string[] = [];
 
-  for (const arg of args) {
-    const kind = await pathKind(join(opts.cwd, arg));
-    if (kind === "dir") patterns.push(`${arg.replace(/\/+$/, "")}/**/*.${EXTENSIONS}`);
-    else if (kind === "file") literal.push(arg.replaceAll("\\", "/"));
-    else patterns.push(arg);
+  for (const argument of args) {
+    const kind = await pathKind(path.join(opts.cwd, argument));
+    if (kind === "dir") patterns.push(`${argument.replace(/\/+$/, "")}/**/*.${EXTENSIONS}`);
+    else if (kind === "file") literal.push(argument.replaceAll("\\", "/"));
+    else patterns.push(argument);
   }
   if (args.length === 0) patterns.push(`**/*.${EXTENSIONS}`);
 
@@ -60,7 +60,7 @@ async function pathKind(path: string): Promise<"dir" | "file" | "none"> {
 async function applyGitignore(paths: string[], cwd: string): Promise<string[]> {
   let gitignore: string;
   try {
-    gitignore = await readFile(join(cwd, ".gitignore"), "utf8");
+    gitignore = await readFile(path.join(cwd, ".gitignore"), "utf8");
   } catch {
     return paths;
   }

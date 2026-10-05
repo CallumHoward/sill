@@ -1,6 +1,11 @@
 import { type AST, getStaticTOMLValue, ParseError, parseTOML } from "toml-eslint-parser";
 
-import { ParseIssue, type ParsedDoc, type ParserAdapter, type Span } from "../types.ts";
+import {
+  ParseIssue,
+  type ParsedDocument,
+  type ParserAdapter,
+  type Span,
+} from "../types.ts";
 import { leadingCommentRef } from "./leading-comment.ts";
 import { pointerSegments } from "./pointer.ts";
 
@@ -65,15 +70,15 @@ function buildIndex(top: AST.TOMLTopLevelTable): Map<string, Span> {
 export const tomlAdapter: ParserAdapter = {
   format: "toml",
   extensions: [".toml"],
-  parse(text: string): ParsedDoc[] {
+  parse(text: string): ParsedDocument[] {
     let ast: AST.TOMLProgram;
     try {
       ast = parseTOML(text);
-    } catch (err) {
-      if (err instanceof ParseError) {
-        throw new ParseIssue(`invalid TOML: ${err.message}`, { offset: err.index, length: 1 });
+    } catch (error) {
+      if (error instanceof ParseError) {
+        throw new ParseIssue(`invalid TOML: ${error.message}`, { offset: error.index, length: 1 });
       }
-      throw err;
+      throw error;
     }
     const index = buildIndex(ast.body[0]);
     return [

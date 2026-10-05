@@ -1,10 +1,10 @@
 import picomatch from "picomatch";
 
 export interface CatalogEntry {
-  name?: string;
-  description?: string;
+  name?: string | undefined;
+  description?: string | undefined;
   url: string;
-  fileMatch?: string[];
+  fileMatch?: string[] | undefined;
 }
 
 export interface CatalogMatch {
@@ -41,7 +41,7 @@ export class CompiledCatalog {
   readonly catalogUrl: string;
   /** Literal basename patterns (no "/"), matched at any depth. */
   readonly #byBasename = new Map<string, Candidate>();
-  /** Literal path patterns (with "/"), matched against the full relPath. */
+  /** Literal path patterns (with "/"), matched against the full relativePath. */
   readonly #byPath = new Map<string, Candidate>();
   /** Bare-extension patterns (optionally `**`-prefixed), bucketed by final extension. */
   readonly #byExtension = new Map<string, ExtensionCandidate[]>();
@@ -50,21 +50,21 @@ export class CompiledCatalog {
 
   constructor(catalogUrl: string, entries: CatalogEntry[]) {
     this.catalogUrl = catalogUrl;
-    entries.forEach((entry, index) => {
+    for (const [index, entry] of entries.entries()) {
       for (const pattern of entry.fileMatch ?? []) {
         this.#add(pattern, { index, url: entry.url, pattern });
       }
-    });
+    }
   }
 
   // fallow-ignore-next-line complexity
-  match(relPath: string): CatalogMatch | null {
-    const basename = relPath.slice(relPath.lastIndexOf("/") + 1);
+  match(relativePath: string): CatalogMatch | null {
+    const basename = relativePath.slice(relativePath.lastIndexOf("/") + 1);
     let best = better(null, this.#byBasename.get(basename));
-    best = better(best, this.#byPath.get(relPath));
+    best = better(best, this.#byPath.get(relativePath));
 
     const dot = basename.lastIndexOf(".");
-    if (dot >= 0) {
+    if (dot !== -1) {
       for (const candidate of this.#byExtension.get(basename.slice(dot + 1)) ?? []) {
         if (basename.endsWith(candidate.suffix)) best = better(best, candidate);
       }
@@ -73,7 +73,7 @@ export class CompiledCatalog {
     for (const candidate of this.#globs) {
       // Sorted by index; nothing later can beat the current best.
       if (best !== null && candidate.index >= best.index) break;
-      if (candidate.isMatch(relPath)) best = better(best, candidate);
+      if (candidate.isMatch(relativePath)) best = better(best, candidate);
     }
 
     return best === null
@@ -86,7 +86,7 @@ export class CompiledCatalog {
 
     const bareExtension = /^(?:\*\*\/)?(\*\.[^*?[\]{}()!/]+)$/.exec(pattern);
     if (bareExtension) {
-      const suffix = bareExtension[1]!.slice(1); // ".cdx.json"
+      const suffix = (bareExtension[1] ?? "").slice(1); // ".cdx.json"
       const key = suffix.slice(suffix.lastIndexOf(".") + 1);
       const bucket = this.#byExtension.get(key) ?? [];
       bucket.push({ ...candidate, suffix });
@@ -127,7 +127,7 @@ export function compileCatalog(catalogUrl: string, catalogJson: unknown): Compil
       ? (catalogJson as { schemas?: unknown }).schemas
       : undefined;
   const entries = Array.isArray(schemas)
-    ? schemas.map(parseEntry).filter((entry): entry is CatalogEntry => entry !== null)
+    ? schemas.map((entry) => parseEntry(entry)).filter((entry): entry is CatalogEntry => entry !== null)
     : [];
   return new CompiledCatalog(catalogUrl, entries);
 }

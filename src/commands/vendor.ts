@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import path from "node:path";
 import process from "node:process";
 
 import packageJson from "../../package.json" with { type: "json" };
@@ -15,14 +15,14 @@ const MAX_DEPTH = 10;
 export async function runVendor(_args: string[], options: CliOptions): Promise<number> {
   const cwd = process.cwd();
   const loaded = await loadConfig(cwd, options.config);
-  const dir = resolve(loaded?.dir ?? cwd, loaded?.config.vendor?.dir ?? "schemas");
-  const manifestPath = join(dir, "manifest.json");
+  const dir = path.resolve(loaded?.dir ?? cwd, loaded?.config.vendor?.dir ?? "schemas");
+  const manifestPath = path.join(dir, "manifest.json");
 
   let manifest: Record<string, string>;
   try {
     manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Record<string, string>;
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== "ENOENT") throw err;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     manifest = {};
   }
 
@@ -70,7 +70,7 @@ export async function runVendor(_args: string[], options: CliOptions): Promise<n
     Object.entries(sortedManifest).map(async ([url, name]) => {
       const schema = fetched.get(url);
       if (schema === undefined) return;
-      await writeFile(join(dir, name), `${JSON.stringify(schema, null, 2)}\n`);
+      await writeFile(path.join(dir, name), `${JSON.stringify(schema, null, 2)}\n`);
     }),
   );
   await writeFile(manifestPath, `${JSON.stringify(sortedManifest, null, 2)}\n`);
@@ -90,7 +90,7 @@ async function fetchSchema(url: string): Promise<unknown> {
 
 /** Collect absolute forms of every external (non-fragment) $ref in a schema. */
 export function externalRefs(schema: unknown, baseUrl: string): string[] {
-  const refs = new Set<string>();
+  const references = new Set<string>();
   // fallow-ignore-next-line complexity
   const walk = (node: unknown): void => {
     if (Array.isArray(node)) {
@@ -103,7 +103,7 @@ export function externalRefs(schema: unknown, baseUrl: string): string[] {
         try {
           const abs = new URL(value, baseUrl);
           abs.hash = "";
-          if (abs.protocol === "http:" || abs.protocol === "https:") refs.add(abs.href);
+          if (abs.protocol === "http:" || abs.protocol === "https:") references.add(abs.href);
         } catch {
           // Unresolvable ref — leave it for validation-time errors.
         }
@@ -113,8 +113,8 @@ export function externalRefs(schema: unknown, baseUrl: string): string[] {
     }
   };
   walk(schema);
-  refs.delete(baseUrl);
-  return [...refs];
+  references.delete(baseUrl);
+  return [...references];
 }
 
 /** Derive a unique, filesystem-safe filename for a schema URL. */

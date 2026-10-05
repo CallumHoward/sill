@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { relative, resolve } from "node:path";
+import path from "node:path";
 import process from "node:process";
 
 import packageJson from "../../package.json" with { type: "json" };
@@ -10,7 +10,7 @@ import type { CliOptions } from "../cli.ts";
 import { type LoadedConfig, loadConfig, loadVendorStore, schemaMappings } from "../config.ts";
 import { adapterForPath } from "../parsers/index.ts";
 import { createRegistry } from "../registry.ts";
-import { defaultCacheDir } from "../util/cache-dir.ts";
+import { defaultCacheDirectory } from "../util/cache-dir.ts";
 import { parseDuration } from "../util/duration.ts";
 
 const SCHEMASTORE_CATALOG = "https://www.schemastore.org/api/json/catalog.json";
@@ -22,12 +22,12 @@ export async function runIdentify(args: string[], options: CliOptions): Promise<
     return 2;
   }
   const cwd = process.cwd();
-  const absPath = resolve(cwd, file);
-  const relPath = relative(cwd, absPath).replaceAll("\\", "/");
+  const absPath = path.resolve(cwd, file);
+  const relativePath = path.relative(cwd, absPath).replaceAll("\\", "/");
 
   const adapter = adapterForPath(file);
   if (!adapter) {
-    console.log(`${relPath}: unsupported format (expected json/jsonc/json5/yaml/toml)`);
+    console.log(`${relativePath}: unsupported format (expected json/jsonc/json5/yaml/toml)`);
     return 0;
   }
 
@@ -36,17 +36,17 @@ export async function runIdentify(args: string[], options: CliOptions): Promise<
   const registry = createRegistry({ cache, vendor: await loadVendorStore(loaded) });
 
   const text = await readFile(absPath, "utf8");
-  const [doc] = adapter.parse(text);
+  const [document] = adapter.parse(text);
 
-  console.log(relPath);
-  if (doc?.schemaRef !== null && doc?.schemaRef !== undefined) {
-    console.log(`  inline reference: ${doc.schemaRef}`);
-    console.log(`  → ${registry.resolveRef(doc.schemaRef, absPath)} (inline wins)`);
+  console.log(relativePath);
+  if (document?.schemaRef !== null && document?.schemaRef !== undefined) {
+    console.log(`  inline reference: ${document.schemaRef}`);
+    console.log(`  → ${registry.resolveRef(document.schemaRef, absPath)} (inline wins)`);
     return 0;
   }
   console.log("  inline reference: none");
 
-  if (printConfigMapping(relPath, loaded)) return 0;
+  if (printConfigMapping(relativePath, loaded)) return 0;
 
   const catalogEnabled = options.catalog && (loaded?.config.catalog ?? true);
   if (!catalogEnabled) {
@@ -54,14 +54,14 @@ export async function runIdentify(args: string[], options: CliOptions): Promise<
     console.log("  → no schema association");
     return 0;
   }
-  await printCatalogChain(relPath, loaded, cache);
+  await printCatalogChain(relativePath, loaded, cache);
   return 0;
 }
 
 function buildCache(options: CliOptions): SchemaCache {
   return new SchemaCache({
-    cacheDir: options.cacheDir ?? defaultCacheDir(),
-    ttlMs: options.ttl !== undefined ? parseDuration(options.ttl) : 12 * 3_600_000,
+    cacheDir: options.cacheDir ?? defaultCacheDirectory(),
+    ttlMs: options.ttl === undefined ? 12 * 3_600_000 : parseDuration(options.ttl),
     offline: options.offline,
     concurrency: options.concurrency,
     userAgent: `sill/${packageJson.version}`,
@@ -69,12 +69,12 @@ function buildCache(options: CliOptions): SchemaCache {
 }
 
 /** Print the config-mapping step; returns true when a config mapping wins. */
-function printConfigMapping(relPath: string, loaded: LoadedConfig | null): boolean {
-  const bareDoc = { value: null, schemaRef: null, locate: () => null };
+function printConfigMapping(relativePath: string, loaded: LoadedConfig | null): boolean {
+  const bareDocument = { value: null, schemaRef: null, locate: () => null };
   const configMatch = createAssociator({
     mappings: schemaMappings(loaded),
     catalogs: [],
-  }).associate(relPath, bareDoc);
+  }).associate(relativePath, bareDocument);
   if (configMatch && configMatch.source.kind === "config") {
     console.log(`  config mapping: "${configMatch.source.pattern}" (${loaded?.path})`);
     console.log(`  → ${configMatch.schemaUri} (config wins)`);
@@ -86,7 +86,7 @@ function printConfigMapping(relPath: string, loaded: LoadedConfig | null): boole
 
 /** Try each catalog in priority order, printing the first match or the fall-through. */
 async function printCatalogChain(
-  relPath: string,
+  relativePath: string,
   loaded: LoadedConfig | null,
   cache: SchemaCache,
 ): Promise<void> {
@@ -94,15 +94,15 @@ async function printCatalogChain(
   for (const url of urls) {
     try {
       const response = await cache.fetchText(url);
-      const match = compileCatalog(url, JSON.parse(response.body)).match(relPath);
+      const match = compileCatalog(url, JSON.parse(response.body)).match(relativePath);
       if (match) {
         console.log(`  catalog: ${url} matched "${match.pattern}"`);
         console.log(`  → ${match.schemaUri} (catalog wins)`);
         return;
       }
       console.log(`  catalog: ${url} — no match`);
-    } catch (err) {
-      console.log(`  catalog: ${url} — unavailable (${(err as Error).message})`);
+    } catch (error) {
+      console.log(`  catalog: ${url} — unavailable (${(error as Error).message})`);
     }
   }
   console.log("  → no schema association");

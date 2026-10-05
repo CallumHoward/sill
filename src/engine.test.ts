@@ -13,7 +13,7 @@ describe("dialectOf", () => {
   });
 
   it("defaults to 2020-12 when unspecified", () => {
-    expect(dialectOf(undefined)).toBe("2020-12");
+    expect(dialectOf()).toBe("2020-12");
   });
 });
 

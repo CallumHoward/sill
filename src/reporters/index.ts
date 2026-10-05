@@ -25,5 +25,5 @@ export function resolveReporterName(
     if (explicit in REPORTERS) return explicit as ReporterName;
     throw new Error(`unknown reporter "${explicit}" (expected pretty, github, or json)`);
   }
-  return env.GITHUB_ACTIONS === "true" ? "github" : "pretty";
+  return env["GITHUB_ACTIONS"] === "true" ? "github" : "pretty";
 }

@@ -4,9 +4,9 @@ import { ParseIssue } from "../types.ts";
 export function caughtIssue(fn: () => unknown): ParseIssue {
   try {
     fn();
-  } catch (err) {
-    if (err instanceof ParseIssue) return err;
-    throw new Error(`expected ParseIssue, got ${String(err)}`);
+  } catch (error) {
+    if (error instanceof ParseIssue) return error;
+    throw new Error(`expected ParseIssue, got ${String(error)}`);
   }
   throw new Error("expected a ParseIssue, but nothing was thrown");
 }

@@ -5,7 +5,7 @@ export interface Span {
 }
 
 /** One parsed document. Files usually yield one; multi-document YAML streams yield several. */
-export interface ParsedDoc {
+export interface ParsedDocument {
   value: unknown;
   /** Inline schema reference (verbatim), or null if the document has none. */
   schemaRef: string | null;
@@ -20,7 +20,7 @@ export interface ParsedDoc {
 export interface ParserAdapter {
   format: "json" | "json5" | "yaml" | "toml";
   extensions: readonly string[];
-  parse(text: string): ParsedDoc[];
+  parse(text: string): ParsedDocument[];
 }
 
 /** A parse failure carrying the source location of the error. */

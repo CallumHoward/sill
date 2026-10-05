@@ -1,6 +1,6 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -10,14 +10,14 @@ describe("discoverFiles", () => {
   let dir: string;
 
   async function seed(files: Record<string, string>): Promise<void> {
-    for (const [path, content] of Object.entries(files)) {
-      await mkdir(join(dir, path, ".."), { recursive: true });
-      await writeFile(join(dir, path), content);
+    for (const [file, content] of Object.entries(files)) {
+      await mkdir(path.join(dir, file, ".."), { recursive: true });
+      await writeFile(path.join(dir, file), content);
     }
   }
 
   beforeEach(async () => {
-    dir = await mkdtemp(join(tmpdir(), "sill-discover-"));
+    dir = await mkdtemp(path.join(tmpdir(), "sill-discover-"));
   });
 
   afterEach(async () => {

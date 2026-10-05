@@ -1,6 +1,11 @@
 import { evaluate, type MemberNode, parse, type ValueNode } from "@humanwhocodes/momoa";
 
-import { ParseIssue, type ParsedDoc, type ParserAdapter, type Span } from "../types.ts";
+import {
+  ParseIssue,
+  type ParsedDocument,
+  type ParserAdapter,
+  type Span,
+} from "../types.ts";
 import { pointerSegments } from "./pointer.ts";
 
 function memberName(member: MemberNode): string {
@@ -30,12 +35,12 @@ function nodeSpan(node: ValueNode): Span | null {
 export const json5Adapter: ParserAdapter = {
   format: "json5",
   extensions: [".json5"],
-  parse(text: string): ParsedDoc[] {
+  parse(text: string): ParsedDocument[] {
     let body: ValueNode;
     try {
       body = parse(text, { mode: "json5", ranges: true }).body;
-    } catch (err) {
-      const { message, offset } = err as { message: string; offset?: number };
+    } catch (error) {
+      const { message, offset } = error as { message: string; offset?: number };
       throw new ParseIssue(`invalid JSON5: ${message}`, { offset: offset ?? 0, length: 1 });
     }
     const schemaNode = body.type === "Object" ? childNode(body, "$schema") : null;

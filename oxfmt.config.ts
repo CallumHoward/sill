@@ -1,8 +1,4 @@
-import { defineConfig } from "oxfmt";
+import { defineOxfmt } from "@wcmj/config-base/oxfmt";
 
-export default defineConfig({
-  jsdoc: true,
-  sortImports: true,
-  // fixtures hold intentionally malformed/odd files; leave them byte-exact.
-  ignorePatterns: [".claude/**", "fixtures/**", "pnpm-lock.yaml"],
-});
+// fixtures hold intentionally malformed/odd files; leave them byte-exact.
+export default defineOxfmt({ ignorePatterns: [".claude/**", "fixtures/**", "pnpm-lock.yaml"] });

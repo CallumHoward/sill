@@ -7,7 +7,7 @@ import { yamlAdapter } from "./yaml.ts";
 const parsers: ParserAdapter[] = [jsoncAdapter, json5Adapter, yamlAdapter, tomlAdapter];
 
 const byExtension = new Map<string, ParserAdapter>(
-  parsers.flatMap((adapter) => adapter.extensions.map((ext) => [ext, adapter])),
+  parsers.flatMap((adapter) => adapter.extensions.map((extension) => [extension, adapter])),
 );
 
 export function adapterForPath(path: string): ParserAdapter | null {

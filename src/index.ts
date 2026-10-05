@@ -2,7 +2,7 @@ export type {
   Association,
   AssociationSource,
   Diagnostic,
-  ParsedDoc,
+  ParsedDocument as ParsedDoc, // public name kept for API stability
   ParserAdapter,
   SillConfig,
   Span,

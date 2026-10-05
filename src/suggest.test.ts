@@ -62,7 +62,7 @@ describe("propertyCandidates", () => {
 
   it("survives $ref cycles", () => {
     const root: Record<string, unknown> = { properties: { a: {} } };
-    root.$ref = "#";
+    root["$ref"] = "#";
     expect(propertyCandidates(root, root)).toEqual(["a"]);
   });
 

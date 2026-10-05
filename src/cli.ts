@@ -27,16 +27,16 @@ Options:
 `;
 
 export interface CliOptions {
-  reporter?: string;
+  reporter?: string | undefined;
   offline: boolean;
   catalog: boolean;
-  config?: string;
-  cacheDir?: string;
-  ttl?: string;
+  config?: string | undefined;
+  cacheDir?: string | undefined;
+  ttl?: string | undefined;
   concurrency: number;
   failOnUnmatched: boolean;
   /** URL to register in the vendor manifest (sill vendor --add). */
-  add?: string;
+  add?: string | undefined;
 }
 
 async function main(): Promise<number> {
@@ -111,12 +111,9 @@ async function main(): Promise<number> {
   }
 }
 
-main().then(
-  (code) => {
-    process.exitCode = code;
-  },
-  (err: unknown) => {
-    console.error(err instanceof Error ? `sill: ${err.message}` : err);
-    process.exitCode = 2;
-  },
-);
+try {
+  process.exitCode = await main();
+} catch (error: unknown) {
+  console.error(error instanceof Error ? `sill: ${error.message}` : error);
+  process.exitCode = 2;
+}
